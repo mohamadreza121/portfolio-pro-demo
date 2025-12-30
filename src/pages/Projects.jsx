@@ -302,7 +302,6 @@ export default function Projects() {
            HEADER
         ============================== */}
         <header className="projects-hero">
-          <div className="projects-kicker">Projects</div>
 
           <h1 className="projects-title">
             <DecryptedText
