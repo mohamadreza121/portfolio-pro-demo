@@ -1,22 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
-
 import "./ScrollDeck.css";
 
 /* =====================================================
    ScrollDeck
 
-   - Presents multiple sections as full-viewport "panels".
-   - The active panel is scrollable; when the user reaches the
-     top/bottom and continues scrolling, we crossfade/reveal into
-     the previous/next panel.
+   - Full-viewport panels; active panel is scrollable.
+   - At top/bottom boundary, continue scrolling transitions to prev/next.
 
    Directional entry (professional behavior):
    - Scrolling DOWN into the next panel => next panel starts at TOP
    - Scrolling UP into the previous panel => previous panel starts at BOTTOM
 
    Navbar/deep-link entry:
-   - Always starts at TOP of the destination panel
+   - Always starts at TOP of destination panel
+
+   Mobile-safe behavior:
+   - Do not attach wheel routing on coarse pointers (phones/tablets)
+   - Reduce/disable expensive blur on coarse pointers
+   - Reduced-motion: skip GSAP transitions entirely
 ===================================================== */
 
 const SECTION_ORDER = [
@@ -48,8 +50,47 @@ export default function ScrollDeck({
   const lastDirectionRef = useRef(1);
   const boundaryCooldownUntilRef = useRef(0);
 
-
   const [activeIndex, setActiveIndex] = useState(0);
+
+  /* =====================================================
+     Runtime flags (mobile + reduced motion)
+  ===================================================== */
+  const prefersReducedMotionRef = useRef(false);
+  const isCoarsePointerRef = useRef(false);
+
+  useEffect(() => {
+    const mqReduce =
+      typeof window !== "undefined" && window.matchMedia
+        ? window.matchMedia("(prefers-reduced-motion: reduce)")
+        : null;
+
+    const mqCoarse =
+      typeof window !== "undefined" && window.matchMedia
+        ? window.matchMedia("(pointer: coarse)")
+        : null;
+
+    const apply = () => {
+      prefersReducedMotionRef.current = !!mqReduce?.matches;
+      isCoarsePointerRef.current = !!mqCoarse?.matches;
+    };
+
+    apply();
+
+    // Listen for changes (rare but correct)
+    if (mqReduce?.addEventListener) mqReduce.addEventListener("change", apply);
+    else if (mqReduce?.addListener) mqReduce.addListener(apply);
+
+    if (mqCoarse?.addEventListener) mqCoarse.addEventListener("change", apply);
+    else if (mqCoarse?.addListener) mqCoarse.addListener(apply);
+
+    return () => {
+      if (mqReduce?.removeEventListener) mqReduce.removeEventListener("change", apply);
+      else if (mqReduce?.removeListener) mqReduce.removeListener(apply);
+
+      if (mqCoarse?.removeEventListener) mqCoarse.removeEventListener("change", apply);
+      else if (mqCoarse?.removeListener) mqCoarse.removeListener(apply);
+    };
+  }, []);
 
   /* =====================================================
      Helpers
@@ -59,7 +100,6 @@ export default function ScrollDeck({
     return SECTION_ORDER.findIndex((s) => s.id === id);
   }, []);
 
-  // Use hash as a "nice URL" while scrolling; keep path/query intact.
   const setHashQuietly = useCallback((hash) => {
     if ((window.location.hash || "") === hash) return;
     const nextUrl = `${window.location.pathname}${window.location.search}${hash}`;
@@ -107,10 +147,6 @@ export default function ScrollDeck({
     el.style.pointerEvents = isVisible ? "auto" : "none";
   }, []);
 
-  /**
-   * Scroll a given panel container to a desired entry position.
-   * position: "top" | "bottom"
-   */
   const scrollPanelTo = useCallback((idx, position = "top", behavior = "auto") => {
     const el = panelRefs.current[idx];
     if (!el) return;
@@ -136,10 +172,10 @@ export default function ScrollDeck({
       if (!el) return;
       el.style.opacity = idx === activeIndexRef.current ? "1" : "0";
       el.style.transform = "translate3d(0,0,0)";
+      el.style.filter = "blur(0px)";
       setPanelVisibility(idx, idx === activeIndexRef.current);
     });
 
-    // Sync active label + hash (e.g., #home) once reveal happens
     applyActive(activeIndexRef.current);
   }, [revealKey, applyActive, setPanelVisibility]);
 
@@ -166,14 +202,13 @@ export default function ScrollDeck({
       const {
         resetTargetScroll = false,
         targetScrollBehavior = "auto",
-        targetScrollPosition = "top", // "top" | "bottom"
+        targetScrollPosition = "top",
       } = opts;
 
       const current = activeIndexRef.current;
       const maxIdx = Math.min(SECTION_ORDER.length - 1, panels.length - 1);
       const target = clamp(nextIdx, 0, maxIdx);
 
-      // If user navigates to the same panel, still allow snapping to top/bottom
       if (target === current) {
         if (resetTargetScroll) {
           scrollPanelTo(current, targetScrollPosition, targetScrollBehavior);
@@ -198,9 +233,32 @@ export default function ScrollDeck({
         return;
       }
 
-      // Reset destination scroll BEFORE reveal begins so the panel "enters" correctly.
+      // Reset destination scroll before reveal begins
       if (resetTargetScroll) {
         scrollPanelTo(target, targetScrollPosition, targetScrollBehavior);
+      }
+
+      // Reduced motion: no GSAP, just switch
+      if (prefersReducedMotionRef.current) {
+        gsap.killTweensOf([currentEl, nextEl]);
+        setPanelVisibility(current, false);
+        setPanelVisibility(target, true);
+
+        // Ensure visual reset
+        currentEl.style.opacity = "0";
+        currentEl.style.transform = "translate3d(0,0,0)";
+        currentEl.style.filter = "blur(0px)";
+
+        nextEl.style.opacity = "1";
+        nextEl.style.transform = "translate3d(0,0,0)";
+        nextEl.style.filter = "blur(0px)";
+
+        nextEl.style.zIndex = "20";
+        currentEl.style.zIndex = "10";
+
+        isTransitioningRef.current = false;
+        applyActive(target);
+        return;
       }
 
       // Make next visible above current for the reveal.
@@ -211,18 +269,23 @@ export default function ScrollDeck({
       gsap.killTweensOf([currentEl, nextEl]);
 
       // Cinematic tuning knobs
-      const DURATION = 1.05;              // 0.95–1.15 feels calm
-      const ENTER_Y = 22;                 // 16–26 feels smooth
-      const EXIT_Y = 14;                  // smaller than enter
-      const ENTER_BLUR = 5;               // 0–6 (lower = cleaner)
-      const EXIT_BLUR = 3;                // keep subtle, avoid big blur spikes
-      const OVERLAP = 0.06;               // slight overlap for softness
-      const EASE = "power2.inOut";        // calmer than power3
+      const isMobile = isCoarsePointerRef.current;
+
+      const DURATION = isMobile ? 0.62 : 1.05;
+      const ENTER_Y = isMobile ? 14 : 22;
+      const EXIT_Y = isMobile ? 10 : 14;
+
+      // Blur is expensive on mobile: disable there
+      const ENTER_BLUR = isMobile ? 0 : 5;
+      const EXIT_BLUR = isMobile ? 0 : 3;
+
+      const OVERLAP = isMobile ? 0.03 : 0.06;
+      const EASE = isMobile ? "power2.out" : "power2.inOut";
 
       gsap.set(nextEl, {
         opacity: 0,
         y: dir > 0 ? ENTER_Y : -ENTER_Y,
-        scale: 0.995,
+        scale: 0.997,
         filter: `blur(${ENTER_BLUR}px)`,
         transformOrigin: "50% 50%",
       });
@@ -230,11 +293,9 @@ export default function ScrollDeck({
       const tl = gsap.timeline({
         defaults: { duration: DURATION, ease: EASE },
         onComplete: () => {
-          // Hide old panel
           gsap.set(currentEl, { opacity: 0, y: 0, scale: 1, filter: "blur(0px)" });
           setPanelVisibility(current, false);
 
-          // Normalize z-index
           nextEl.style.zIndex = "20";
           currentEl.style.zIndex = "10";
 
@@ -243,13 +304,12 @@ export default function ScrollDeck({
         },
       });
 
-      // Let current start fading a hair later; avoids “hard cut” feel
       tl.to(
         currentEl,
         {
           opacity: 0,
           y: dir > 0 ? -EXIT_Y : EXIT_Y,
-          scale: 1.002,
+          scale: 1.001,
           filter: `blur(${EXIT_BLUR}px)`,
         },
         OVERLAP
@@ -284,7 +344,6 @@ export default function ScrollDeck({
 
   /* =====================================================
      Pending navigation (Navbar / deep-link)
-     - Always go to TOP of destination section
   ===================================================== */
   useEffect(() => {
     if (!pendingSectionId) return;
@@ -307,7 +366,6 @@ export default function ScrollDeck({
       const el = panelRefs.current[idx];
       if (!el) return;
 
-      // If user is not on Home, jump to Home; else scroll to top of Home.
       if (idx !== 0) {
         goToIndex(0, {
           resetTargetScroll: true,
@@ -325,26 +383,24 @@ export default function ScrollDeck({
   }, [goToIndex]);
 
   /* =====================================================
-     Wheel routing
-     Directional entry behavior:
-     - DOWN boundary => next panel enters at TOP
-     - UP boundary   => previous panel enters at BOTTOM
+     Wheel routing (desktop only)
   ===================================================== */
   useEffect(() => {
+    // Phones/tablets: let native touch scrolling handle everything.
+    if (isCoarsePointerRef.current) return;
+
     const container = containerRef.current;
     if (!container) return;
 
     const onWheel = (e) => {
       if (isQuoteOpen) return;
 
-      // Cooldown to absorb touchpad momentum at boundaries
       const now = performance.now();
       if (now < boundaryCooldownUntilRef.current) {
         e.preventDefault();
         return;
       }
 
-      // If a transition is running, consume the wheel so nothing leaks/bounces.
       if (isTransitioningRef.current) {
         e.preventDefault();
         return;
@@ -361,13 +417,11 @@ export default function ScrollDeck({
       const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
 
       const maxIdx = Math.min(SECTION_ORDER.length - 1, panels.length - 1);
-      const COOLDOWN_MS = 80; // choose 50–100
+      const COOLDOWN_MS = 80;
 
       if (delta > 0) {
-        // Scrolling down
         if (!atBottom) return;
 
-        // HARD STOP: already at last panel -> do not move past footer
         if (idx >= maxIdx) {
           boundaryCooldownUntilRef.current = now + COOLDOWN_MS;
           e.preventDefault();
@@ -381,10 +435,8 @@ export default function ScrollDeck({
           targetScrollBehavior: "auto",
         });
       } else {
-        // Scrolling up
         if (!atTop) return;
 
-        // HARD STOP: already at first panel -> do not move past home
         if (idx <= 0) {
           boundaryCooldownUntilRef.current = now + COOLDOWN_MS;
           e.preventDefault();
@@ -400,21 +452,18 @@ export default function ScrollDeck({
       }
     };
 
-
     container.addEventListener("wheel", onWheel, { passive: false });
     return () => container.removeEventListener("wheel", onWheel);
   }, [goToIndex, isQuoteOpen, panels.length]);
 
   /* =====================================================
-     Active-panel scroll reporting (for scroll-to-top button)
+     Active-panel scroll reporting
   ===================================================== */
   useEffect(() => {
     const el = panelRefs.current[activeIndex];
     if (!el) return;
 
-    const onScroll = () => {
-      publishDeckState(activeIndex);
-    };
+    const onScroll = () => publishDeckState(activeIndex);
 
     el.addEventListener("scroll", onScroll, { passive: true });
     publishDeckState(activeIndex);
