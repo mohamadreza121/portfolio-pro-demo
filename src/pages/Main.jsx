@@ -25,20 +25,14 @@ export default function Main({
   const [pendingSectionId, setPendingSectionId] = useState(null);
 
   /* =====================================================
-     NAV REQUESTS (Navbar clicks / deep-links)
+    NAV REQUESTS (Navbar clicks / deep-links)
   ===================================================== */
   useEffect(() => {
     if (location.pathname !== "/") return;
 
-    // Programmatic requests (navigate state)
-    if (location.state?.scrollTo) {
-      setPendingSectionId(location.state.scrollTo);
-      navigate(".", { replace: true, state: null });
-      return;
-    }
+    const stateScrollTo = location.state?.scrollTo || null;
 
-    // Hash is used only for “nice URL” while scrolling.
-    // On refresh we always start at Home, so ignore any hash and remove it.
+    // Ignore hash on refresh; remove it so we always start at Home.
     if (location.hash) {
       window.history.replaceState(
         window.history.state,
@@ -46,7 +40,20 @@ export default function Main({
         location.pathname + location.search
       );
     }
-  }, [location, navigate]);
+
+    // Only handle programmatic requests (navigate state)
+    if (!stateScrollTo) return;
+
+    const run = () => {
+      setPendingSectionId(stateScrollTo);
+      navigate(".", { replace: true, state: null }); // clear so it doesn't retrigger
+    };
+
+    // Avoid synchronous setState in effect
+    if (typeof queueMicrotask === "function") queueMicrotask(run);
+    else Promise.resolve().then(run);
+  }, [location.pathname, location.search, location.hash, location.state?.scrollTo, navigate]);
+
 
   /* =====================================================
      RENDER

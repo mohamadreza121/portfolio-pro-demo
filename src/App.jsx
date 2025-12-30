@@ -154,7 +154,7 @@ export default function App() {
         location.pathname + location.search
       );
     }
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
 
   /* =====================================================
@@ -178,7 +178,7 @@ export default function App() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [location.pathname, location.search]); // keep both if you reference both
 
   /* =====================================================
      RENDER

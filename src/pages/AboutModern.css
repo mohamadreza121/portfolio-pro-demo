@@ -264,6 +264,10 @@
 }
 
 @media (max-width: 520px) {
+  /* ================= MAIN PAGE ================= */
+    .about-page {
+    padding-bottom: 70px; /* adjust 70–120px */
+  }
 
   /* ================= HEADER ================= */
   .about-title-center {

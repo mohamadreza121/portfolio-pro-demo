@@ -351,15 +351,28 @@ export default function ScrollDeck({
   useEffect(() => {
     if (!pendingSectionId) return;
 
-    goToSection(pendingSectionId, {
-      resetTargetScroll: true,
-      targetScrollPosition: "top",
-      targetScrollBehavior: "auto",
-    });
+    const id = pendingSectionId;
 
-    onPendingHandled?.();
+    let cancelled = false;
+    const run = () => {
+      if (cancelled) return;
+
+      goToSection(id, {
+        resetTargetScroll: true,
+        targetScrollPosition: "top",
+        targetScrollBehavior: "auto",
+      });
+
+      onPendingHandled?.();
+    };
+
+    if (typeof queueMicrotask === "function") queueMicrotask(run);
+    else Promise.resolve().then(run);
+
+    return () => {
+      cancelled = true;
+    };
   }, [pendingSectionId, goToSection, onPendingHandled]);
-
   /* =====================================================
      External controls
   ===================================================== */

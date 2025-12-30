@@ -316,6 +316,13 @@ html[data-theme="day"] .project-cta .btn-pill:focus-visible {
   }
 }
 
+@media (max-width: 520px) {
+  .projects-page {
+    padding-bottom: 70px;
+  }
+
+}
+
 
 /* =====================================================
    MOBILE / COARSE POINTER: disable magnetic translation
