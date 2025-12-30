@@ -1,0 +1,356 @@
+/* =====================================================
+   PROJECTS — CINEMATIC ENTERPRISE GRID (NO WEBGL)
+===================================================== */
+
+.projects-page {
+  position: relative;
+  width: 100%;
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Subtle grid background */
+.projects-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.projects-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 44px 20px 110px;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.projects-hero {
+  text-align: center;
+  margin-bottom: clamp(44px, 8vh, 96px);
+}
+
+.projects-kicker {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--accent-border);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.projects-title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--accent-glow);
+  margin-bottom: 16px;
+  line-height: 1.15;
+}
+
+.projects-subtitle {
+  max-width: 860px;
+  margin: 0 auto;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* =====================================================
+   GRID
+===================================================== */
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns => 3 rows for 6 cards */
+  gap: 30px;
+}
+
+/* =====================================================
+   CARD SHELL
+===================================================== */
+
+.project-card {
+  /* magnetic variables (JS sets these) */
+  --mx: 0px;
+  --my: 0px;
+
+  /* parallax variable (JS sets this) */
+  --media-y: 0px;
+
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  min-height: 520px; /* bigger cards on desktop */
+
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--accent-border);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  transform: translate3d(var(--mx), var(--my), 0);
+  transition:
+    transform 520ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 520ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 520ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Calm lift + glow (no harsh jumps) */
+.project-card:hover {
+  box-shadow:
+    0 26px 86px rgba(0, 0, 0, 0.72),
+    0 0 34px rgba(97, 220, 163, 0.22);
+  border-color: rgba(97, 220, 163, 0.35);
+}
+
+/* =====================================================
+   DAY MODE — hover should not look like night glow
+===================================================== */
+
+html[data-theme="day"] .project-card {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.10);
+}
+
+html[data-theme="day"] .project-card:hover {
+  /* softer, neutral shadow instead of neon glow */
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.18),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.10);
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+
+
+/* Focus ring (WCAG) */
+.project-card:focus-within .project-focus-ring {
+  opacity: 1;
+}
+
+.project-focus-ring {
+  position: absolute;
+  inset: 10px;
+  border-radius: 18px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms ease;
+  box-shadow:
+    0 0 0 2px rgba(97, 220, 163, 0.65),
+    0 0 26px rgba(97, 220, 163, 0.25);
+}
+
+/* =====================================================
+   MEDIA LAYER
+===================================================== */
+
+.project-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Image and video share the same cinematic framing */
+.project-img,
+.project-video {
+  position: absolute;
+  inset: -14px; /* gives breathing room for parallax translate */
+  width: calc(100% + 28px);
+  height: calc(100% + 28px);
+  object-fit: cover;
+  transform: translate3d(0, var(--media-y), 0) scale(1.06);
+  transition:
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 520ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Video hidden until hover/focus preview */
+.project-video {
+  opacity: 0;
+}
+
+/* When active, video fades in and image fades out */
+.project-card.is-media-active .project-video {
+  opacity: 1;
+}
+
+.project-card.is-media-active .project-img {
+  opacity: 0;
+}
+
+/* Vignette for readability */
+.project-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 55% at 50% 35%, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.35) 60%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.20));
+  pointer-events: none;
+}
+
+html[data-theme="day"] .project-vignette {
+  background:
+    radial-gradient(
+      60% 55% at 50% 35%,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.28) 60%,
+      rgba(255, 255, 255, 0.62) 100%
+    ),
+    linear-gradient(
+      to top,
+      rgba(255, 255, 255, 0.68),
+      rgba(255, 255, 255, 0.22)
+    );
+}
+
+
+/* =====================================================
+   DAY MODE — focus ring + click/focus glow should be neutral
+===================================================== */
+
+html[data-theme="day"] .project-focus-ring {
+  /* replace green glow with a neutral, professional focus treatment */
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.38),
+    0 0 0 7px rgba(0, 0, 0, 0.10);
+}
+
+/* If your button shows the green outline on focus in day mode */
+html[data-theme="day"] .project-cta .btn-pill:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.45);
+  outline-offset: 3px;
+}
+
+
+
+/* =====================================================
+   CONTENT LAYER
+===================================================== */
+
+.project-body {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.project-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent-glow);
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+
+.project-summary {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  margin: 0;
+  max-width: 52ch;
+}
+
+/* =====================================================
+   TECH PILLS + CTA
+===================================================== */
+
+.project-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.project-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tech-pill {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--card-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  box-shadow: 0 0 6px rgba(97, 220, 163, 0.18);
+}
+
+.project-cta {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Make button focus visible (if your global styles don't already) */
+.project-cta .btn-pill:focus-visible {
+  outline: 2px solid rgba(97, 220, 163, 0.75);
+  outline-offset: 3px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 900px) {
+  .projects-grid {
+    grid-template-columns: 1fr; /* 1 column on tablets/phones */
+    gap: 22px;
+  }
+
+  .project-card {
+    min-height: 460px;
+  }
+}
+
+
+/* =====================================================
+   MOBILE / COARSE POINTER: disable magnetic translation
+===================================================== */
+@media (pointer: coarse) {
+  .project-card {
+    transform: none !important;
+  }
+}
+
+/* =====================================================
+   REDUCED MOTION: disable parallax + transitions + video fade
+===================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .project-card {
+    transition: none !important;
+    transform: none !important;
+  }
+  .project-img,
+  .project-video {
+    transition: none !important;
+    transform: none !important;
+  }
+  .project-video {
+    display: none;
+  }
+}

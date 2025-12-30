@@ -1,0 +1,17 @@
+/* =====================================================
+   NAVBAR SHELL — MATCHES SITE STRUCTURE
+   ===================================================== */
+
+.navbar-shell {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  pointer-events: none; /* Dock re-enables internally */
+}
+
+/* Allow interaction only on dock */
+.navbar-shell .dock-panel {
+  pointer-events: auto;
+}

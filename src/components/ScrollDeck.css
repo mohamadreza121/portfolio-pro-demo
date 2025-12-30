@@ -1,0 +1,43 @@
+.scroll-deck {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.scroll-deck__panel {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+
+  /* Default off (we enable the active one in JS) */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.scroll-deck__panelInner {
+  min-height: 100%;
+}
+
+/* Ensure the first panel is visible before GSAP runs */
+.scroll-deck__panel:first-child {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 20;
+}
+
+/* Reduce motion support */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-deck__panel {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,139 @@
+/* ===== DOCK LAYOUT ===== */
+.dock-outer {
+  margin: 0 0.5rem;
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+}
+
+.dock-panel {
+  position: fixed;
+  margin-top: 45px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: flex-end;
+
+  width: fit-content;
+  max-width: calc(100vw - 16px);
+  overflow: visible;
+
+  gap: 1rem;
+  border-radius: 1rem;
+  background-color: var(--dock-bg);
+  border: 1px solid var(--dock-border);
+  padding: 0.6rem 0.5rem 0.5rem;
+
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.65),
+    inset 0 0 0 1px var(--dock-border);
+
+  z-index: 1000;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+
+.dock-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background-color: var(--dock-item-bg);
+  border: 1px solid var(--dock-item-border);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* ============================================
+   iOS TOUCH HARDENING — DOCK
+============================================ */
+
+.dock-item {
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+
+/* Active item emphasis matches cards */
+.dock-item.active {
+  box-shadow:
+    0 0 0 1px var(--accent-border),
+    0 0 18px var(--accent-glow);
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== LABELS ===== */
+.dock-label {
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  width: fit-content;
+  white-space: pre;
+  border-radius: 0.375rem;
+  border: 1px solid var(--dock-label-border);
+  background-color: var(--dock-label-bg);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--dock-label-color);
+  transform: translateX(-50%);
+  transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+/* ===== ACTIVE / INACTIVE ICONS ===== */
+.dock-item .dock-icon svg {
+  color: var(--nav-inactive);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.dock-item.active .dock-icon svg {
+  color: var(--nav-active);
+  filter: drop-shadow(0 0 6px var(--nav-active));
+}
+
+/* ===== HOVER EFFECT ===== */
+.dock-item:hover .dock-icon svg {
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent);
+}
+
+
+@media (hover: none) {
+  .dock-label {
+    display: none;
+  }
+
+  .dock-item:hover {
+    box-shadow: none;
+    filter: none;
+  }
+}
+
+
+
+/* Reduce clutter on very small screens */
+@media (max-width: 420px) {
+  .dock-panel {
+    padding: 0.45rem 0.45rem 0.4rem;
+    gap: 0.45rem;
+  }
+
+  .dock-label {
+    display: none;
+  }
+}

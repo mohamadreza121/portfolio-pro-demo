@@ -1,0 +1,19 @@
+.text-block {
+  margin: 1rem 0;
+  max-width: 900px;
+  font-family: monospace;
+  font-size: clamp(14px, 2.4vw, 18px);
+  color: #fff;
+  line-height: 1.45;
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: 0.4px;
+}
+
+.text-block p { margin: 0; }
+
+.scramble-char {
+  display: inline;
+  will-change: transform, opacity;
+}
+
+

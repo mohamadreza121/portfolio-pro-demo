@@ -1,0 +1,166 @@
+/**
+ * QuoteModal.css
+ * --------------------------------------------------
+ * Clean, premium modal styling aligned with
+ * the existing dark/light theme tokens.
+ */
+
+.quote-modal-overlay {
+  position: fixed;
+  isolation: isolate;
+  inset: 0;
+  background: var(--section-bg);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.quote-modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--form-surface);
+  border: 1px solid var(--accent-border);
+  border-radius: 18px;
+  padding: 1.75rem 1.75rem 2rem;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.quote-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.quote-modal-header h3 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.quote-modal-close {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.quote-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.quote-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.quote-field-full {
+  grid-column: 1 / -1;
+}
+
+.quote-field label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.quote-field input,
+.quote-field select,
+.quote-field textarea {
+  background: var(--section-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  color: var(--text-color);
+  font-size: 0.85rem;
+}
+
+.quote-field input:focus,
+.quote-field select:focus,
+.quote-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.quote-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.quote-submit-btn {
+  padding: 0.65rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-alt)
+  );
+  color: #000;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.quote-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.quote-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quote-status {
+  font-size: 0.75rem;
+}
+
+.quote-status.success {
+  color: var(--accent);
+}
+
+.quote-status.error {
+  color: #ff6b6b;
+}
+
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 520px) {
+  .quote-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-modal {
+    padding: 1.5rem 1.25rem 1.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .quote-modal {
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  .quote-modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .quote-submit-btn {
+    width: 100%;
+  }
+}

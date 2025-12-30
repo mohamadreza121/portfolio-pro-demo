@@ -1,0 +1,51 @@
+<svg
+  width="128"
+  height="128"
+  viewBox="0 0 128 128"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <!-- Gradient -->
+  <defs>
+    <linearGradient id="cyberGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5fffb0"/>
+      <stop offset="100%" stop-color="#0077cc"/>
+    </linearGradient>
+
+    <!-- Stronger glow -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Hexagon -->
+  <g transform="scale(1.1) translate(-5,-6)">
+    <polygon
+      points="64 8, 112 36, 112 92, 64 120, 16 92, 16 36"
+      fill="rgba(0,0,0,0.15)"
+      stroke="url(#cyberGradient)"
+      stroke-width="8"
+    />
+  </g>
+
+  <!-- MH text -->
+  <text
+    x="69"
+    y="67"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="JetBrains Mono, monospace"
+    font-size="60"
+    font-weight="800"
+    letter-spacing="6"
+    fill="url(#cyberGradient)"
+    filter="url(#glow)"
+  >
+    MH
+  </text>
+
+</svg>

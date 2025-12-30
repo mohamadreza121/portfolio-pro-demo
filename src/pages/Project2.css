@@ -1,0 +1,157 @@
+/* =====================================================
+   PROJECT 2 — ENTERPRISE ROUTING (MATCHES PROJECT 1)
+   ===================================================== */
+
+.project-page {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 120px;
+}
+
+.project-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 2;
+}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+
+.project-hero {
+  margin-bottom: 5px;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+.project-hero-frame {
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--accent-border);
+  background: var(--card-bg);
+  box-shadow: 0 0 22px var(--accent-glow);
+  max-height: 64vh;
+}
+
+.project-hero-video {
+  position: relative;
+  padding-top: 56.25%;
+}
+
+.project-hero-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* =====================================================
+   TITLE
+   ===================================================== */
+
+.project-title-section {
+  max-width: 920px;
+  margin-top: 20px;
+  margin-bottom: 56px;
+}
+
+.project-title {
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent-glow);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  min-height: 2.4em;
+}
+
+/* =====================================================
+   OVERVIEW
+   ===================================================== */
+
+.project-overview {
+  margin-bottom: 12vh;
+}
+
+.project-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.project-overview-card {
+  background: var(--card-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 26px var(--card-shadow);
+}
+
+/* =====================================================
+   TOPOLOGY
+   ===================================================== */
+
+.project-topology {
+  margin-bottom: 6vh;
+}
+
+.project-topology-image {
+  max-width: 920px;
+  margin: 24px auto 0;
+}
+
+.project-topology-image img {
+  width: 100%;
+  display: block;
+  border-radius: 18px;
+  border: 1px solid var(--accent-border);
+  background: var(--card-bg);
+  box-shadow: 0 22px 60px var(--card-shadow);
+}
+
+.project-topology-cta {
+  max-width: 920px;
+  margin: 28px auto 0;
+}
+
+/* =====================================================
+   GALLERY & NAV
+   ===================================================== */
+
+.project-gallery,
+.project-navigation {
+  margin-bottom: 72px;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 768px) {
+  .project-container {
+    padding: 0 16px 64px;
+  }
+
+  .project-hero {
+    max-width: 100%;
+  }
+
+  .project-hero-frame {
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .project-title {
+    font-size: 1.6rem;
+  }
+
+  .project-hero-video {
+    padding-top: 60%;
+  }
+}

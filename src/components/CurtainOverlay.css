@@ -1,0 +1,72 @@
+/* =====================================================
+   CURTAIN OVERLAY (GLOBAL, TEMPORARY)
+   ===================================================== */
+
+.curtain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500; /* BELOW PRELOADER (2000), ABOVE SITE (10) */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* =====================================================
+   CURTAINS
+   ===================================================== */
+
+.curtain {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.98),
+    rgba(0, 0, 0, 0.92)
+  );
+
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(0, 0, 0, 0.6);
+
+  will-change: transform;
+}
+
+/* LEFT / RIGHT POSITIONING */
+
+.curtain-left {
+  left: 0;
+}
+
+.curtain-right {
+  right: 0;
+}
+
+/* =====================================================
+   CENTER GLOW SEAM (CINEMATIC DETAIL)
+   ===================================================== */
+
+.curtain::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--accent),
+    transparent
+  );
+  opacity: 0.85;
+  filter: blur(0.5px);
+}
+
+.curtain-left::after {
+  right: 0;
+}
+
+.curtain-right::after {
+  left: 0;
+}

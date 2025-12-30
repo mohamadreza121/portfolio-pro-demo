@@ -1,0 +1,152 @@
+/* =====================================================
+   CERTIFICATIONS — CINEMATIC SHOWCASE
+   ===================================================== */
+
+.certifications-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  font-family: "JetBrains Mono", monospace;
+  overflow: visible;
+  margin-top: 160px;
+}
+
+.certifications-page .rpv-core__viewer,
+.certifications-page .rpv-core__viewer-layout,
+.certifications-page .rpv-core__viewer-layout__main {
+  height: 100%;
+}
+
+
+/* Subtle grid backdrop */
+.certifications-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.certifications-container {
+  position: relative;
+  z-index: 2;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 20px 100px;
+}
+
+/* ===============================
+   HERO (CENTERED, MATCH PROJECTS)
+   =============================== */
+
+.certifications-hero-center {
+  text-align: center;
+  margin-bottom: clamp(60px, 10vh, 120px);
+}
+
+.certifications-title {
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--accent-glow);
+  margin-bottom: 16px;
+}
+
+.certifications-subtitle {
+  max-width: 760px;
+  margin: 0 auto 28px;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* Credly CTA */
+.credly-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* ===============================
+   CAROUSEL OVERRIDES (LARGER)
+   =============================== */
+
+.certifications-carousel {
+  margin-top: 20px;
+}
+
+/* Make this carousel visually dominant */
+.cert-carousel-large .carousel__track {
+  min-height: 340px;
+}
+
+/* =====================================================
+   CERTIFICATION MEDIA SYSTEM
+   ===================================================== */
+
+/* Base cert container */
+.cert-carousel-large .carousel-card__media {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  min-height: 260px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Default cert behavior (most certs) */
+.cert-carousel-large .carousel-card__media img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+}
+
+/* Bigger cards */
+.cert-carousel-large .carousel-card__link {
+  width: min(440px, 82vw);
+  grid-template-rows: auto 1fr;
+}
+
+/* Stronger presence */
+.cert-carousel-large .carousel-card__title {
+  font-size: 1.05rem;
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+
+@media (max-width: 600px) {
+  .cert-carousel-large .carousel-card__link {
+    width: min(340px, 88vw);
+  }
+
+  .cert-carousel-large .carousel-card__media img {
+    max-height: 320px;
+  }
+}
+
+/* =====================================================
+   LIGHTBOX — MOBILE HEIGHT REDUCTION
+   ===================================================== */
+
+@media (max-width: 520px) {
+  .lightbox-inner {
+    height: 70vh;        /* ⬅️ smaller than 90vh */
+    max-height: 70vh;
+  }
+}
+
+@media (max-width: 420px) {
+  .lightbox-inner {
+    height: 65vh;
+    max-height: 65vh;
+  }
+}

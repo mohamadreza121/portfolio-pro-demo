@@ -1,0 +1,17 @@
+/* =====================================================
+   Project 6 — Enterprise Ops Capstone
+   (Aligned with Project1–5)
+   ===================================================== */
+
+@import "./Project4.css";
+
+/* =====================================================
+   Project 6 — CTA Letter Spacing (Ultra-Small Screens)
+   ===================================================== */
+
+@media (max-width: 420px) {
+  #project-6 .project-navigation .btn-pill {
+    letter-spacing: -0.035em;
+    word-spacing: -0.25em;
+  }
+}

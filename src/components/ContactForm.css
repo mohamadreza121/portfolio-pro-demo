@@ -1,0 +1,151 @@
+.contact-form {
+  width: 100%;
+  background: transparent;
+}
+
+/* ================================
+   HEADER
+================================ */
+
+.contact-form-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.contact-form-header p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ================================
+   FORM GRID
+================================ */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+
+.form-grid > * {
+  min-width: 0;
+}
+
+.form-grid input,
+.form-grid textarea {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  background: var(--form-surface);
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-color);
+  font-family: inherit;
+  font-size: 0.85rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.form-grid textarea {
+  grid-column: 1 / -1;
+  resize: vertical;
+}
+
+.form-grid input::placeholder,
+.form-grid textarea::placeholder {
+  color: var(--muted);
+}
+
+/* ================================
+   FOCUS / ACCESSIBILITY
+================================ */
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-border);
+}
+
+/* ================================
+   ACTIONS
+================================ */
+
+.form-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.contact-submit-btn {
+  align-self: flex-start;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-alt)
+  );
+  color: #000;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.contact-submit-btn:hover {
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.form-status {
+  font-size: 0.75rem;
+}
+
+.form-status.success {
+  color: var(--accent);
+}
+
+.form-status.error {
+  color: #ff6b6b;
+}
+
+/* ================================
+   VARIANTS
+================================ */
+
+.contact-form--footer {
+  padding: 0;
+}
+
+.contact-form--page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+  background: var(--form-surface);
+  border: 1px solid var(--accent-border);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px var(--accent-border);
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

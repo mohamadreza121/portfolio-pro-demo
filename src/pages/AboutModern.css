@@ -1,0 +1,350 @@
+:root {
+  --about-card-height: min(68svh, 430px);
+}
+
+:root[data-theme="day"] .about-page::before {
+  opacity: 0.4;
+}
+
+
+
+/* ======================================================
+   ABOUT PAGE — CINEMATIC / STRUCTURED (FINAL)
+   ====================================================== */
+
+.about-page {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-color);
+  margin-top: 120px;
+}
+
+/* GRID BACKGROUND */
+.about-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ======================================================
+   CONTAINER
+   ====================================================== */
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ======================================================
+   HEADER — CENTERED
+   ====================================================== */
+.about-header.centered {
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.about-title-center {
+  font-size: 2.8rem;
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent-glow);
+  margin-bottom: 10px;
+}
+
+.about-subtitle {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  opacity: 0.85;
+}
+
+/* ======================================================
+   MAIN ROW — PROFILE + STACKED PANEL
+   ====================================================== */
+.about-main-row {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 96px;
+  align-items: flex-start;
+  padding-bottom: 96px; /* breathing room below both */
+}
+
+/* ======================================================
+   PROFILE CARD (ABOUT-SPECIFIC SCALING)
+   ====================================================== */
+.about-left {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.about-left .pc-card-wrapper {
+  transform: scale(0.86);
+  transform-origin: top center;
+}
+
+/* tighten vertical footprint */
+.about-left .pc-card {
+  height: var(--about-card-height);
+}
+
+/* ======================================================
+   STACKED PANEL CARD
+   ====================================================== */
+.about-stack-card {
+  background: var(--section-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 18px;
+  padding: 20px 26px 14px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /* desktop sync */
+  height: calc(var(--about-card-height) * 0.86);
+}
+
+
+/* ======================================================
+   PANELS
+   ====================================================== */
+.about-panel {
+  flex: 1;                 /* fills available height */
+  overflow: visible;       /* scroll if content is tall */
+  padding-right: 4px;      /* avoids scrollbar overlap */
+  animation: fadeUp 260ms ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================
+   SECTION TITLES
+   ====================================================== */
+.section-title {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent-glow);
+}
+
+/* ======================================================
+   SKILLS GRID
+   ====================================================== */
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 4px;
+}
+
+.about-card {
+  background: var(--card-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 0 18px var(--card-shadow);
+}
+
+.about-card h3 {
+  color: var(--accent);
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.about-card p {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-color);
+  opacity: 0.85;
+}
+
+/* ======================================================
+   WIDE CONTENT (EXPERIENCE / EDUCATION)
+   ====================================================== */
+.about-wide-card {
+  background: var(--card-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 0 22px var(--card-shadow);
+}
+
+.about-wide-card p {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-color);
+  opacity: 0.9;
+}
+
+/* ======================================================
+   PANEL NAVIGATION (INSIDE CARD)
+   ====================================================== */
+.about-panel-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 8px;
+  flex-shrink: 0;          /* 🔑 never collapse */
+}
+
+.about-panel-nav .btn-pill {
+  min-width: 40px;
+  padding: 5px 12px;
+}
+
+/* ======================================================
+   NAVBAR OVERLAP SAFETY
+   ====================================================== */
+#about {
+  scroll-margin-top: 140px;
+}
+
+.about-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.about-panel::-webkit-scrollbar-thumb {
+  background: var(--accent-border);
+  border-radius: 4px;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+@media (max-width: 960px) {
+  .about-main-row {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .about-stack-card {
+    height: auto;
+    min-height: unset;
+  }
+
+  .about-panel {
+    overflow-y: visible;   /* no nested scroll on mobile */
+  }
+
+  .about-left {
+    justify-content: center;
+  }
+
+  .about-left .pc-card-wrapper {
+    transform: scale(0.95);
+  }
+
+  .about-title-center {
+    font-size: 2.4rem;
+  }
+}
+
+@media (max-width: 520px) {
+
+  /* ================= HEADER ================= */
+  .about-title-center {
+    font-size: 1.95rem;      /* slightly smaller */
+    margin-bottom: 6px;
+  }
+
+  .about-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  /* ================= MAIN ROW ================= */
+  .about-main-row {
+    gap: 36px;               /* tighter vertical spacing */
+    padding-bottom: 48px;
+  }
+
+  /* ================= PROFILE CARD ================= */
+  .about-left .pc-card-wrapper {
+    transform: scale(0.92);  /* slightly larger than desktop mobile */
+  }
+
+  .about-left .pc-card {
+    height: min(60svh, 360px);
+  }
+
+  /* ================= STACKED PANEL ================= */
+  .about-stack-card {
+    padding: 16px 18px 12px;
+  }
+
+  .about-panel {
+    overflow-y: auto;
+  }
+
+  /* ================= SKILL CARDS ================= */
+  .about-grid {
+    gap: 12px;
+  }
+
+  .about-card {
+    padding: 14px;
+  }
+
+  .about-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .about-card p {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  /* ================= WIDE CARDS ================= */
+  .about-wide-card {
+    padding: 16px;
+  }
+
+  .about-wide-card p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  /* ================= PANEL NAV ================= */
+  .about-panel-nav {
+    margin-top: 8px;
+    gap: 10px;
+  }
+
+  .about-panel-nav .btn-pill {
+    padding: 4px 10px;
+    min-width: 36px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .about-stack-card {
+    padding: 16px 18px 12px;
+  }
+}
+
+
