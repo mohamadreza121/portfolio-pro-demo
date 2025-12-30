@@ -49,6 +49,9 @@ export default function ScrollDeck({
   const isTransitioningRef = useRef(false);
   const lastDirectionRef = useRef(1);
   const boundaryCooldownUntilRef = useRef(0);
+  const touchStartYRef = useRef(0);
+  const touchTriggeredRef = useRef(false);
+
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -455,6 +458,122 @@ export default function ScrollDeck({
     container.addEventListener("wheel", onWheel, { passive: false });
     return () => container.removeEventListener("wheel", onWheel);
   }, [goToIndex, isQuoteOpen, panels.length]);
+
+
+
+  /* =====================================================
+    Touch routing (iOS / mobile)
+    - Swipe UP at bottom => next panel enters at TOP
+    - Swipe DOWN at top  => previous panel enters at BOTTOM
+  ===================================================== */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const THRESHOLD_PX = 26;   // how far to swipe before triggering
+    const COOLDOWN_MS = 80;    // match your boundary cooldown
+
+    const onTouchStart = (e) => {
+      if (isQuoteOpen) return;
+      if (isTransitioningRef.current) return;
+      if (!e.touches || e.touches.length !== 1) return;
+
+      touchTriggeredRef.current = false;
+      touchStartYRef.current = e.touches[0].clientY;
+    };
+
+    const onTouchMove = (e) => {
+      if (isQuoteOpen) return;
+
+      // Cooldown to absorb iOS momentum at boundaries
+      const now = performance.now();
+      if (now < boundaryCooldownUntilRef.current) {
+        e.preventDefault();
+        return;
+      }
+
+      if (isTransitioningRef.current) {
+        e.preventDefault();
+        return;
+      }
+
+      if (!e.touches || e.touches.length !== 1) return;
+      if (touchTriggeredRef.current) return;
+
+      const idx = activeIndexRef.current;
+      const el = panelRefs.current[idx];
+      if (!el) return;
+
+      const maxIdx = Math.min(SECTION_ORDER.length - 1, panels.length - 1);
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartYRef.current - currentY; // + = swipe up, - = swipe down
+
+      if (Math.abs(deltaY) < THRESHOLD_PX) return;
+
+      const atTop = el.scrollTop <= 0;
+      const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+
+      // Swipe UP => go NEXT, but only if we're at bottom
+      if (deltaY > 0 && atBottom) {
+        // Hard stop at last panel
+        if (idx >= maxIdx) {
+          boundaryCooldownUntilRef.current = now + COOLDOWN_MS;
+          e.preventDefault();
+          return;
+        }
+
+        touchTriggeredRef.current = true;
+        boundaryCooldownUntilRef.current = now + COOLDOWN_MS;
+        e.preventDefault();
+
+        goToIndex(idx + 1, {
+          resetTargetScroll: true,
+          targetScrollPosition: "top",
+          targetScrollBehavior: "auto",
+        });
+        return;
+      }
+
+      // Swipe DOWN => go PREV, but only if we're at top
+      if (deltaY < 0 && atTop) {
+        // Hard stop at first panel
+        if (idx <= 0) {
+          boundaryCooldownUntilRef.current = now + COOLDOWN_MS;
+          e.preventDefault();
+          return;
+        }
+
+        touchTriggeredRef.current = true;
+        boundaryCooldownUntilRef.current = now + COOLDOWN_MS;
+        e.preventDefault();
+
+        goToIndex(idx - 1, {
+          resetTargetScroll: true,
+          targetScrollPosition: "bottom",
+          targetScrollBehavior: "auto",
+        });
+      }
+    };
+
+    const onTouchEnd = () => {
+      touchTriggeredRef.current = false;
+    };
+
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    // IMPORTANT: must be passive:false or preventDefault will be ignored on iOS
+    container.addEventListener("touchmove", onTouchMove, { passive: false });
+    container.addEventListener("touchend", onTouchEnd, { passive: true });
+    container.addEventListener("touchcancel", onTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener("touchstart", onTouchStart);
+      container.removeEventListener("touchmove", onTouchMove);
+      container.removeEventListener("touchend", onTouchEnd);
+      container.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [goToIndex, isQuoteOpen, panels.length]);
+
 
   /* =====================================================
      Active-panel scroll reporting

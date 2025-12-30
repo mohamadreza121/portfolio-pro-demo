@@ -35,6 +35,12 @@
   z-index: 20;
 }
 
+.scroll-deck,
+.scroll-deck__panel {
+  touch-action: pan-y;
+}
+
+
 /* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
   .scroll-deck__panel {
