@@ -74,7 +74,7 @@
 
 .pc-behind {
   position: absolute;
-  inset: 0;
+  inset: var(--pc-behind-inset, 0px);
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(
@@ -82,10 +82,11 @@
     var(--behind-glow-color) 0%,
     transparent var(--behind-glow-size)
   );
-  filter: blur(50px) saturate(1.1);
-  opacity: calc(0.8 * var(--card-opacity));
+  filter: blur(var(--pc-behind-blur, 50px)) saturate(var(--pc-behind-sat, 1.1));
+  opacity: calc(var(--pc-behind-opacity, 0.8) * var(--card-opacity));
   transition: opacity 200ms ease;
 }
+
 
 .pc-card-wrapper:hover,
 .pc-card-wrapper.active {
@@ -93,10 +94,8 @@
 }
 
 .pc-card {
-  height: 80svh;
-  max-height: 540px;
-  display: grid;
-  aspect-ratio: 0.8;
+  height: var(--pc-card-height, 80svh);
+  max-height: var(--pc-card-max-height, 540px);
   border-radius: var(--card-radius);
   position: relative;
   background-blend-mode: multiply;
@@ -404,38 +403,87 @@
 .pc-details {
   width: 100%;
   position: absolute;
-  top: 2em;
+
+  /* Use a variable so About can override safely */
+  top: var(--pc-details-top, 2em);
+  left: 0;
+  right: 0;
+
   display: flex;
   flex-direction: column;
+  align-items: center;
+
+  /* padding so text never touches card edges */
+  padding-inline: 18px;
+
+  /* more consistent spacing than using negative "top" on subtitle */
+  gap: 8px;
+
+  text-align: center;
 }
+
 
 .pc-details h3 {
   font-weight: 600;
   margin: 0;
-  font-size: min(5svh, 3em);
-  margin: 0;
+
+  /* Keep your variable, but make it stable across screens */
+  font-size: var(--pc-name-size, clamp(1.35rem, 2.6vw, 2.35rem));
+  line-height: 1.05;
+
   background-image: var(--name-gradient);
   background-size: 1em 1.5em;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
   text-shadow: 0 0 4px rgba(255, 123, 84, 0.4);
+
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* safety */
+  /* Standard property (supported in modern engines behind the scenes) */
+  line-clamp: 2;
+
+  overflow: hidden;
+
+  /* nicer wrapping on modern browsers */
+  text-wrap: balance;
 }
 
 .pc-details p {
   font-weight: 600;
-  position: relative;
-  top: -12px;
-  white-space: nowrap;
-  font-size: 16px;
-  margin: 0 auto;
-  width: min-content;
+  margin: 0;
+
+  /* Stop using negative top offsets for layout */
+  position: static;
+
+  /* Keep your variable, but stable */
+  font-size: var(--pc-title-size, clamp(0.78rem, 1.45vw, 1rem));
+  line-height: 1.25;
+
   background-image: var(--title-gradient);
   background-size: 1em 1.5em;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   -webkit-background-clip: text;
   text-shadow: 0 0 4px rgba(255, 123, 84, 0.4);
+
+  /* IMPORTANT: allow wrapping */
+  white-space: normal;
+  width: 100%;
+
+  /* Encourage a clean 2-line subtitle */
+  max-width: var(--pc-title-max, 28ch);
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* force max 2 lines */
+    /* Standard property */
+  line-clamp: 2;
+  overflow: hidden;
+
+  text-wrap: balance;
 }
 
 @keyframes glow-bg {
@@ -476,22 +524,26 @@
 }
 
 @media (max-width: 768px) {
+  /* If you want the title block a bit higher on smaller screens */
+  :root {
+    --pc-details-top: 1.8em;
+  }
+
   .pc-card {
     height: 70svh;
     max-height: 450px;
   }
 
+  /* Optional: if you want to slightly tighten spacing */
   .pc-details {
-    top: 2em;
+    padding-inline: 16px;
+    gap: 7px;
   }
 
-  .pc-details h3 {
-    font-size: min(4svh, 2.5em);
-  }
-
-  .pc-details p {
-    font-size: 14px;
-  }
+  /* You can keep these if you want explicit sizes at this breakpoint,
+     but your clamp() already handles it nicely. */
+  /* .pc-details h3 { } */
+  /* .pc-details p { } */
 
   .pc-user-info {
     --ui-inset: 15px;
@@ -525,92 +577,79 @@
   }
 }
 
+
+
+/* =====================================================
+   ABOUT-ONLY overrides (must be last so it wins cascade)
+===================================================== */
+
+@media (max-width: 520px) {
+  .about-page .pc-card {
+    height: min(54svh, 340px);
+    max-height: 340px;
+  }
+
+  .about-page .pc-avatar-content .avatar {
+    width: 92%;
+    max-width: 92%;
+    bottom: 8px;
+
+    transform-origin: 50% 100%;
+    transform:
+      translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px))
+      translateZ(0)
+      scaleY(calc(1 + (var(--pointer-from-top) - 0.5) * 0.02))
+      scaleX(calc(1 + (var(--pointer-from-left) - 0.5) * 0.01))
+      scale(0.86);
+  }
+
+  .about-page {
+    --pc-title-max: 24ch; /* tighter => more predictable 2 lines */
+  }
+  .about-page .pc-details h3 { font-size: min(3.1svh, 1.8em); }
+  .about-page .pc-details p { font-size: 11.5px; }
+}
+
 @media (max-width: 480px) {
-  .pc-card {
-    height: 60svh;
-    max-height: 380px;
+  .about-page .pc-card {
+    height: min(52svh, 330px);
+    max-height: 330px;
   }
 
-  .pc-details {
-    top: 1.5em;
+  .about-page .pc-avatar-content .avatar {
+    width: 90%;
+    max-width: 90%;
+    bottom: 8px;
+    transform:
+      translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px))
+      translateZ(0)
+      scaleY(calc(1 + (var(--pointer-from-top) - 0.5) * 0.02))
+      scaleX(calc(1 + (var(--pointer-from-left) - 0.5) * 0.01))
+      scale(0.84);
   }
 
-  .pc-details h3 {
-    font-size: min(3.5svh, 2em);
-  }
-
-  .pc-details p {
-    font-size: 12px;
-    top: -8px;
-  }
-
-  .pc-user-info {
-    --ui-inset: 12px;
-    padding: 8px 10px;
-  }
-
-  .pc-mini-avatar {
-    width: 24px;
-    height: 24px;
-  }
-
-  .pc-user-details {
-    gap: 8px;
-  }
-
-  .pc-handle {
-    font-size: 12px;
-  }
-
-  .pc-status {
-    font-size: 9px;
-  }
-
-  .pc-contact-btn {
-    padding: 5px 10px;
-    font-size: 10px;
-    border-radius: 50px;
-  }
+  .about-page .pc-details h3 { font-size: min(3svh, 1.7em); }
+  .about-page .pc-details p { font-size: 11.5px; }
 }
 
 @media (max-width: 320px) {
-  .pc-card {
-    height: 55svh;
-    max-height: 320px;
+  .about-page .pc-card {
+    height: min(50svh, 305px);
+    max-height: 305px;
   }
 
-  .pc-details h3 {
-    font-size: min(3svh, 1.5em);
+  .about-page .pc-avatar-content .avatar {
+    width: 88%;
+    max-width: 88%;
+    bottom: 10px;
+    transform:
+      translateX(calc(-50% + (var(--pointer-from-left) - 0.5) * 6px))
+      translateZ(0)
+      scaleY(calc(1 + (var(--pointer-from-top) - 0.5) * 0.02))
+      scaleX(calc(1 + (var(--pointer-from-left) - 0.5) * 0.01))
+      scale(0.82);
   }
 
-  .pc-details p {
-    font-size: 11px;
-  }
-
-  .pc-user-info {
-    padding: 6px 8px;
-  }
-
-  .pc-mini-avatar {
-    width: 20px;
-    height: 20px;
-  }
-
-  .pc-user-details {
-    gap: 6px;
-  }
-
-  .pc-handle {
-    font-size: 11px;
-  }
-
-  .pc-status {
-    font-size: 8px;
-  }
-
-  .pc-contact-btn {
-    padding: 4px 8px;
-    font-size: 9px;
-    border-radius: 50px;
-  }
+  .about-page .pc-details h3 { font-size: min(2.8svh, 1.55em); }
+  .about-page .pc-details p { font-size: 11.5px; }
 }

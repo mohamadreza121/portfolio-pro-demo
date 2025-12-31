@@ -27,6 +27,9 @@ const SERVICE_MAP = {
   "Network Security Audits & Hardening": "security",
   "Windows Server & Active Directory": "network",
   "Web / App": "website",
+
+
+  Consulting: "consulting",
 };
 
 export default function QuoteModal({

@@ -52,6 +52,17 @@ export default function App() {
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [quoteService, setQuoteService] = useState("");
 
+  useEffect(() => {
+    const onOpen = (e) => {
+      const svc = e?.detail?.service ?? "";
+      setQuoteService(svc);
+      setQuoteOpen(true);
+    };
+
+    window.addEventListener("openQuoteModal", onOpen);
+    return () => window.removeEventListener("openQuoteModal", onOpen);
+  }, []);
+
   /* =====================================================
      DISABLE BROWSER SCROLL RESTORATION (CRITICAL)
   ===================================================== */
@@ -259,7 +270,10 @@ export default function App() {
         <QuoteModal
           open={quoteOpen}
           service={quoteService}
-          onClose={() => setQuoteOpen(false)}
+          onClose={() => {
+            setQuoteOpen(false);
+            setQuoteService("");
+          }}
         />
       </div>
     </div>
