@@ -48,7 +48,7 @@ export default function Navbar({ active, theme, onToggleTheme }) {
       isActive: active === "Projects",
     },
     {
-      key: "Certifications",
+      key: "Certs",
       icon: <FaCertificate />,
       label: "Certs",
       onClick: () => {

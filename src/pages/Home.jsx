@@ -14,27 +14,28 @@ export default function Home({ revealKey }) {
   useEffect(() => {
     if (!revealKey) return;
 
-    // Kill any previous hero animations to avoid stacking
     gsap.killTweensOf(".hero-enter");
 
-    // Hero container reveal (opacity / translate / blur)
     gsap.fromTo(
       ".hero-enter",
-      {
-        opacity: 0,
-        y: 40,
-        filter: "blur(12px)",
-      },
+      { opacity: 0, y: 40, filter: "blur(12px)" },
       {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
         duration: 1.0,
         ease: "power3.out",
-        delay: 0, // Curtain controls timing
+        delay: 0,
+        clearProps: "filter",
       }
     );
   }, [revealKey]);
+
+  const openQuote = (service = "") => {
+    window.dispatchEvent(
+      new CustomEvent("openQuoteModal", { detail: { service } })
+    );
+  };
 
   return (
     <div id="home" className="home-page">
@@ -42,7 +43,6 @@ export default function Home({ revealKey }) {
 
       <div className="home-container">
         <section className="home-hero">
-          {/* RIGHT COLUMN (content reveal) */}
           <div className="hero-right hero-enter">
             <h1 className="home-title">
               <DecryptedText
@@ -53,22 +53,27 @@ export default function Home({ revealKey }) {
                 revealDirection="center"
                 encryptedClassName="encrypted"
                 className="revealed"
-                revealDelay={420}
+                revealDelay={260}
                 revealKey={revealKey}
               />
             </h1>
 
             <h2 className="home-subtitle">
               <DecryptedText
-                text="Aspiring Network Engineer & Network Technician"
+                text="Network Engineer & Network Technician"
                 animateOn="both"
                 sequential
                 speed={80}
                 revealDirection="center"
-                revealDelay={620}
+                revealDelay={420}
                 revealKey={revealKey}
               />
             </h2>
+
+            {/* Optional minimal “value line” (kept short + serious) */}
+            <p className="home-tagline">
+              Secure, scalable network design. Clean documentation. Real-world labs.
+            </p>
 
             <div className="home-cta-row">
               <button
@@ -76,26 +81,31 @@ export default function Home({ revealKey }) {
                 className="btn-pill primary cursor-target"
                 onClick={() => navigateAndScroll(navigate, "projects")}
               >
-                View My Projects
+                Projects
               </button>
 
               <button
                 type="button"
                 className="btn-pill cursor-target"
-                onClick={() => navigateAndScroll(navigate, "certifications")}
+                onClick={() => navigateAndScroll(navigate, "services")}
               >
-                Certifications
+                Services
+              </button>
+
+              <button
+                type="button"
+                className="btn-pill cursor-target"
+                onClick={() => openQuote("")}
+              >
+                Request a Quote
               </button>
 
               <a
                 href="mailto:mrheidarpoor7@gmail.com"
                 className="btn-pill cursor-target"
-                onClick={(e) => {
-                  // Prevent scroll-spy confusion when leaving the page
-                  e.stopPropagation();
-                }}
+                onClick={(e) => e.stopPropagation()}
               >
-                Contact Me
+                Contact
               </a>
             </div>
           </div>

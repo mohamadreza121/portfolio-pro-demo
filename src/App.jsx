@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { FaArrowUp } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { sendQuoteMessage } from "./services/messaging";
 
 import Router from "./routes/Router";
 import LetterGlitch from "./components/LetterGlitch";
@@ -270,10 +271,8 @@ export default function App() {
         <QuoteModal
           open={quoteOpen}
           service={quoteService}
-          onClose={() => {
-            setQuoteOpen(false);
-            setQuoteService("");
-          }}
+          onClose={() => setQuoteOpen(false)}
+          onSubmit={(data) => sendQuoteMessage(data, quoteService)}
         />
       </div>
     </div>

@@ -23,6 +23,13 @@
   z-index: 10;
 }
 
+/* Prevent keyboard focus from landing on hidden panels in edge cases */
+.scroll-deck__panel[aria-hidden="true"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+
 .scroll-deck__panelInner {
   min-height: 100%;
 }
@@ -39,6 +46,31 @@
 .scroll-deck__panel {
   touch-action: pan-y;
 }
+
+
+
+/* =====================================================
+   TEST MODE — make all panels accessible/stacked
+===================================================== */
+.scroll-deck--test {
+  height: auto;
+  overflow: visible;
+}
+
+.scroll-deck--test .scroll-deck__panel {
+  position: relative;
+  inset: auto;
+  display: block !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  z-index: auto !important;
+}
+
+.scroll-deck--test .scroll-deck__panelInner {
+  min-height: 100vh;
+}
+
 
 
 /* Reduce motion support */

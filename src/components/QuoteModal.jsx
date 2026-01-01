@@ -1,20 +1,3 @@
-/**
- * QuoteModal.jsx
- * --------------------------------------------------
- * Lightweight, backend-agnostic quote / lead modal.
- *
- * TEMPLATE NOTES:
- * - No backend is wired by default.
- * - Replace handleSubmit() with:
- *   • EmailJS
- *   • Formspree
- *   • Netlify Forms
- *   • Custom API endpoint
- *
- * Designed to be triggered from existing CTAs
- * (e.g. "Request Quote") without route changes.
- */
-
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./QuoteModal.css";
@@ -27,35 +10,39 @@ const SERVICE_MAP = {
   "Network Security Audits & Hardening": "security",
   "Windows Server & Active Directory": "network",
   "Web / App": "website",
-
-
   Consulting: "consulting",
 };
 
-export default function QuoteModal({
-  open = false,
-  service = "",
-  onClose,
-  onSubmit,
-}) {
+const EMPTY_FORM = {
+  name: "",
+  email: "",
+  projectType: "",
+  budget: "",
+  message: "",
+};
+
+export default function QuoteModal({ open = false, service = "", onClose, onSubmit }) {
   const overlayRef = useRef(null);
   const firstInputRef = useRef(null);
 
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    projectType: "",
-    budget: "",
-    message: "",
-  });
+  const [formState, setFormState] = useState(EMPTY_FORM);
+  const [status, setStatus] = useState("idle");
 
-  const [status, setStatus] = useState("idle"); // idle | submitting | success | error
+  // Honeypot (kept OUT of formState)
+  const [honeypot, setHoneypot] = useState("");
+  const openedAtRef = useRef(Date.now());
 
-  /* =====================================================
-     FOCUS + ESC HANDLING
-  ===================================================== */
   useEffect(() => {
     if (!open) return;
+
+    openedAtRef.current = Date.now();
+    setStatus("idle");
+    setHoneypot("");
+
+    setFormState({
+      ...EMPTY_FORM,
+      projectType: SERVICE_MAP[service] || "",
+    });
 
     firstInputRef.current?.focus({ preventScroll: true });
 
@@ -70,12 +57,7 @@ export default function QuoteModal({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
-
-
-  /* =====================================================
-     SERVICE AUTO-SELECT (PREMIUM TOUCH)
-  ===================================================== */
+  }, [open, onClose, service]);
 
   if (!open) return null;
 
@@ -86,30 +68,30 @@ export default function QuoteModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("submitting");
 
+    const elapsed = Date.now() - openedAtRef.current;
+    const isBot = honeypot.trim().length > 0 || elapsed < 1200;
+
+    if (isBot) {
+      setStatus("success");
+      setFormState(EMPTY_FORM);
+      setHoneypot("");
+      return;
+    }
+
+    setStatus("submitting");
     try {
-      if (onSubmit) {
-        await onSubmit(formState);
-      } else {
-        // Demo-safe simulated submit
-        await new Promise((r) => setTimeout(r, 900));
-      }
+      if (!onSubmit) throw new Error("QuoteModal missing onSubmit");
+      const res = await onSubmit(formState);
+      if (res && res.ok === false) throw new Error("Message provider returned ok=false");
 
       setStatus("success");
-      setFormState({
-        name: "",
-        email: "",
-        projectType: "",
-        budget: "",
-        message: "",
-      });
-    } catch (err) {
-      console.error(err);
+      setFormState(EMPTY_FORM);
+      setHoneypot("");
+    } catch {
       setStatus("error");
     }
   };
-
 
   return createPortal(
     <div
@@ -124,16 +106,36 @@ export default function QuoteModal({
       <div className="quote-modal">
         <header className="quote-modal-header">
           <h3>Request a Quote</h3>
-          <button
-            className="quote-modal-close"
-            onClick={onClose}
-            aria-label="Close"
-          >
+          <button className="quote-modal-close" onClick={onClose} aria-label="Close">
             ×
           </button>
         </header>
 
         <form onSubmit={handleSubmit} noValidate>
+          {/* Honeypot */}
+          <div
+            style={{
+              position: "absolute",
+              left: "-10000px",
+              top: "auto",
+              width: "1px",
+              height: "1px",
+              overflow: "hidden",
+            }}
+            aria-hidden="true"
+          >
+            <label htmlFor="qm-website">Website</label>
+            <input
+              id="qm-website"
+              name="website"
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
+          </div>
+
           <div className="quote-form-grid">
             <div className="quote-field">
               <label htmlFor="q-name">Name</label>
@@ -168,7 +170,7 @@ export default function QuoteModal({
                 id="q-projectType"
                 name="projectType"
                 className="cursor-target"
-                value={formState.projectType || SERVICE_MAP[service] || ""}
+                value={formState.projectType}
                 onChange={handleChange}
               >
                 <option value="">Select type</option>
@@ -219,15 +221,11 @@ export default function QuoteModal({
             </button>
 
             {status === "success" && (
-              <span className="quote-status success">
-                Request sent successfully.
-              </span>
+              <span className="quote-status success">Request sent successfully.</span>
             )}
 
             {status === "error" && (
-              <span className="quote-status error">
-                Something went wrong. Please try again.
-              </span>
+              <span className="quote-status error">Something went wrong. Please try again.</span>
             )}
           </div>
         </form>

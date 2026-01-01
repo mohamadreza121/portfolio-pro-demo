@@ -1,20 +1,27 @@
+:root {
+  --about-card-height: min(68svh, 430px);
+}
+
+:root[data-theme="day"] .about-page::before {
+  opacity: 0.4;
+}
+
+
+
 /* ======================================================
-   ABOUT — STORYTELLING / CINEMATIC (SCROLLDECK-FRIENDLY)
+   ABOUT PAGE — CINEMATIC / STRUCTURED (FINAL)
    ====================================================== */
 
 .about-page {
   width: 100%;
   min-height: 100vh;
   position: relative;
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   color: var(--text-color);
-
-  /* IMPORTANT: use padding (not margin) inside ScrollDeck panels */
-  padding-top: 150px;
-  padding-bottom: 100px;
+  margin-top: 120px;
 }
 
-/* Grid background */
+/* GRID BACKGROUND */
 .about-page::before {
   content: "";
   position: absolute;
@@ -22,700 +29,322 @@
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 44px 44px;
+  background-size: 40px 40px;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.9;
 }
 
-:root[data-theme="day"] .about-page::before {
-  opacity: 0.45;
-}
-
+/* ======================================================
+   CONTAINER
+   ====================================================== */
 .about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
   position: relative;
   z-index: 2;
-  max-width: 1220px;
-  margin: 0 auto;
-  padding: 0 22px;
 }
 
 /* ======================================================
-   HERO
+   HEADER — CENTERED
    ====================================================== */
-
-.about-hero {
+.about-header.centered {
   text-align: center;
-  margin-bottom: 28px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 520ms ease, transform 520ms ease;
+  margin-bottom: 34px;
 }
 
-.about-hero.is-inview {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.about-title {
-  font-size: clamp(2.1rem, 4.8vw, 3.2rem);
-  font-weight: 900;
+.about-title-center {
+  font-size: 2.8rem;
   color: var(--accent);
-  text-shadow: 0 0 12px var(--accent-glow);
-  line-height: 1.1;
-  margin-bottom: 12px;
+  text-shadow: 0 0 10px var(--accent-glow);
+  margin-bottom: 10px;
 }
 
-.about-lede {
-  max-width: 820px;
-  margin: 0 auto 18px;
-  font-size: clamp(0.98rem, 1.4vw, 1.12rem);
-  line-height: 1.75;
-  color: var(--muted);
-}
-
-/* Chapter bar */
-.about-chapterbar {
-  display: inline-flex;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.18);
-  border: 1px solid var(--accent-border);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 10px 30px var(--card-shadow);
-}
-
-:root[data-theme="day"] .about-chapterbar {
-  background: rgba(255,255,255,0.55);
-}
-
-.about-chip {
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 7px 12px;
-  background: var(--card-bg);
+.about-subtitle {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
   color: var(--text-color);
-  font-size: 0.86rem;
-  cursor: pointer;
-  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
-}
-
-.about-chip:hover {
-  transform: translateY(-1px);
-  border-color: var(--accent-border);
-}
-
-.about-chip.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 16px var(--accent-glow);
-}
-
-.about-chip:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  opacity: 0.85;
 }
 
 /* ======================================================
-   LAYOUT
+   MAIN ROW — PROFILE + STACKED PANEL
    ====================================================== */
-
-.about-layout {
+.about-main-row {
   display: grid;
-  grid-template-columns: minmax(280px, 360px) 1fr; /* was max 310 (too small) */
-  gap: 52px;                                       /* slightly tighter */
-  align-items: start;
-}
-
-
-/* Sticky profile */
-.about-left .about-sticky {
-  position: sticky;
-  top: 110px;              /* navbar-safe inside ScrollDeck */
-
-  display: flex;
-  flex-direction: column;  /* ✅ stack items vertically */
-  gap: 14px;               /* small separation */
-  align-items: stretch;    /* ✅ miniFacts takes full width */
+  grid-template-columns: 280px 1fr;
+  gap: 96px;
+  align-items: flex-start;
+  padding-bottom: 96px; /* breathing room below both */
 }
 
 /* ======================================================
-   ABOUT-ONLY ProfileCard sizing + glow containment
+   PROFILE CARD (ABOUT-SPECIFIC SCALING)
    ====================================================== */
-
-/* Keep the left column clean and stack its children */
 .about-left {
-  max-width: 320px;
-  display: flex;
-  flex-direction: column;     /* card on top, miniFacts below */
-  align-items: center;
-  gap: 14px;
-  overflow: visible;          /* IMPORTANT: do NOT clip the card */
-}
-
-.about-left .about-sticky {
-  position: sticky;
-  top: 110px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
-
 
 .about-left .pc-card-wrapper {
-  width: 100%;
-  max-width: 360px;
-  margin: 0 auto;          /* centers the card */
-  transform: none;              /* remove scale */
+  transform: scale(0.86);
   transform-origin: top center;
-  --behind-glow-size: 18%; /* default was 25% globally */
 }
 
+/* tighten vertical footprint */
 .about-left .pc-card {
-  height: min(58svh, 400px);    /* <= 400px -> width <= 320px (0.8 ratio) */
-  max-height: 400px;
-}
-
-
-/* Shrink name/title just a bit so it sits nicer inside */
-.about-left .pc-details h3 {
-  font-size: min(3.6svh, 2.25em) !important;
-}
-
-.about-left .pc-details p {
-  font-size: 14px !important;
-  top: -10px !important;
-}
-
-/* Contain the glow without cutting the card */
-.about-left .pc-behind {
-  inset: 18px;
-  border-radius: 30px;
-  clip-path: inset(0 round 30px);  /* clips glow to rounded shape */
-  filter: blur(34px) saturate(1.05);
-  opacity: calc(0.55 * var(--card-opacity));
-}
-
-
-
-
-.about-miniFacts {
-  width: 100%;
-  margin-top: 14px;
-  background: var(--section-bg);
-  border: 1px solid var(--accent-border);
-  border-radius: 16px;
-  padding: 12px 14px;
-  box-shadow: 0 12px 34px var(--card-shadow);
-}
-
-.about-miniFacts .fact {
-  display: grid;
-  grid-template-columns: 70px 1fr;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-:root[data-theme="day"] .about-miniFacts .fact {
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-}
-
-.about-miniFacts .fact:last-child {
-  border-bottom: none;
-}
-
-.about-miniFacts .k {
-  color: var(--muted);
-  font-size: 0.78rem;
-}
-
-.about-miniFacts .v {
-  color: var(--text-color);
-  font-size: 0.84rem;
-  line-height: 1.35;
-}
-
-/* Right column */
-.about-right {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* Anchor offset for chapter jumps */
-.about-anchor {
-  scroll-margin-top: 140px;
+  height: var(--about-card-height);
 }
 
 /* ======================================================
-   BLOCKS (reveal + card treatment)
+   STACKED PANEL CARD
    ====================================================== */
-
-.about-block {
-  position: relative;
+.about-stack-card {
   background: var(--section-bg);
   border: 1px solid var(--accent-border);
   border-radius: 18px;
-  padding: 20px 22px;
-  box-shadow: 0 18px 52px var(--card-shadow);
-  overflow: hidden;
+  padding: 20px 26px 14px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.6);
 
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 520ms ease, transform 520ms ease;
-}
-
-.about-block.is-inview {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* subtle scanline */
-.about-block::after {
-  content: "";
-  position: absolute;
-  inset: -60% -10% auto -10%;
-  height: 140%;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(97,220,163,0.08) 50%,
-    transparent 100%
-  );
-  transform: rotate(12deg);
-  opacity: 0.16;
-  pointer-events: none;
-}
-
-:root[data-theme="day"] .about-block::after {
-  opacity: 0.10;
-}
-
-.about-blockHead {
-  margin-bottom: 14px;
-}
-
-.about-h2 {
-  font-size: 1.35rem;
-  font-weight: 900;
-  color: var(--accent);
-  text-shadow: 0 0 10px var(--accent-glow);
-  margin-bottom: 6px;
-}
-
-.about-muted {
-  color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.6;
-}
-
-/* Divider */
-.about-divider {
-  height: 1px;
-  background: rgba(255,255,255,0.06);
-  margin: 16px 0;
-}
-
-:root[data-theme="day"] .about-divider {
-  background: rgba(0,0,0,0.10);
-}
-
-/* ======================================================
-   STORY CARDS
-   ====================================================== */
-
-.about-storyGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-.storyCard {
-  background: var(--card-bg);
-  border: 1px solid var(--accent-border);
-  border-radius: 16px;
-  padding: 14px 14px 12px;
-  box-shadow: 0 10px 28px var(--card-shadow);
-}
-
-.storyCard h3 {
-  font-size: 1.02rem;
-  color: var(--text-color);
-  margin-bottom: 8px;
-}
-
-.storyCard p {
-  font-size: 0.88rem;
-  line-height: 1.6;
-  color: var(--muted);
-}
-
-.storyTagRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /* desktop sync */
+  height: calc(var(--about-card-height) * 0.86);
 }
 
-.tag {
-  font-size: 0.72rem;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--accent-border);
-  background: rgba(0,0,0,0.18);
-  color: var(--text-color);
+
+/* ======================================================
+   PANELS
+   ====================================================== */
+.about-panel {
+  flex: 1;                 /* fills available height */
+  overflow: visible;       /* scroll if content is tall */
+  padding-right: 4px;      /* avoids scrollbar overlap */
+  animation: fadeUp 260ms ease both;
 }
 
-:root[data-theme="day"] .tag {
-  background: rgba(255,255,255,0.55);
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ======================================================
-   TIMELINE
+   SECTION TITLES
    ====================================================== */
+.section-title {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent-glow);
+}
 
-.about-timeline {
+/* ======================================================
+   SKILLS GRID
+   ====================================================== */
+.about-grid {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 4px;
 }
 
-.tItem {
-  display: grid;
-  grid-template-columns: 14px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.tItem .dot {
-  width: 10px;
-  height: 10px;
-  margin-top: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow);
-}
-
-.tBody {
-  background: rgba(0,0,0,0.12);
+.about-card {
+  background: var(--card-bg);
   border: 1px solid var(--accent-border);
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 18px;
+  box-shadow: 0 0 18px var(--card-shadow);
 }
 
-:root[data-theme="day"] .tBody {
-  background: rgba(255,255,255,0.52);
-}
-
-.tTop {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 6px;
-}
-
-.tRole {
-  font-weight: 900;
-  font-size: 0.92rem;
-  color: var(--text-color);
-}
-
-.tWhen {
-  font-size: 0.82rem;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.tText {
-  margin: 0;
-  font-size: 0.86rem;
-  line-height: 1.55;
-  color: var(--muted);
-}
-
-/* ======================================================
-   NOW (callout + metrics)
-   ====================================================== */
-
-.about-callout {
-  background: rgba(0,0,0,0.18);
-  border: 1px solid var(--accent-border);
-  border-radius: 16px;
-  padding: 14px 16px;
-  box-shadow: 0 10px 28px var(--card-shadow);
-}
-
-:root[data-theme="day"] .about-callout {
-  background: rgba(255,255,255,0.55);
-}
-
-.about-calloutText {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: var(--text-color);
-  opacity: 0.92;
-}
-
-.about-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.metric {
-  background: var(--card-bg);
-  border: 1px solid var(--accent-border);
-  border-radius: 16px;
-  padding: 14px 14px 12px;
-  box-shadow: 0 10px 28px var(--card-shadow);
-}
-
-.metricTop {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.metricNum {
-  font-size: 1.45rem;
-  font-weight: 1000;
+.about-card h3 {
   color: var(--accent);
-  text-shadow: 0 0 12px var(--accent-glow);
+  margin-bottom: 8px;
+  font-size: 1.05rem;
 }
 
-.metricLabel {
-  font-size: 0.86rem;
-  color: var(--text-color);
-  opacity: 0.92;
-  text-transform: lowercase;
-}
-
-.metricDesc {
-  margin: 0;
-  font-size: 0.84rem;
+.about-card p {
+  font-size: 0.9rem;
   line-height: 1.55;
-  color: var(--muted);
+  color: var(--text-color);
+  opacity: 0.85;
 }
 
 /* ======================================================
-   CAPABILITIES
+   WIDE CONTENT (EXPERIENCE / EDUCATION)
    ====================================================== */
-
-.capGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.capCard {
+.about-wide-card {
   background: var(--card-bg);
   border: 1px solid var(--accent-border);
-  border-radius: 16px;
-  padding: 14px 14px 12px;
-  box-shadow: 0 10px 28px var(--card-shadow);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 0 22px var(--card-shadow);
 }
 
-.capCard h3 {
-  margin: 0 0 10px;
-  font-size: 1.02rem;
-  color: var(--text-color);
-}
-
-.pillRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.pill {
-  font-size: 0.74rem;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--accent-border);
-  background: rgba(0,0,0,0.18);
-  color: var(--text-color);
-}
-
-:root[data-theme="day"] .pill {
-  background: rgba(255,255,255,0.55);
-}
-
-/* ======================================================
-   PROOF
-   ====================================================== */
-
-.proofGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.proofCard {
-  background: var(--card-bg);
-  border: 1px solid var(--accent-border);
-  border-radius: 16px;
-  padding: 14px 14px 12px;
-  box-shadow: 0 10px 28px var(--card-shadow);
-}
-
-.proofCard h3 {
-  margin: 0 0 10px;
-  font-size: 1.02rem;
-  color: var(--text-color);
-}
-
-.proofCard p {
-  margin: 0;
-  font-size: 0.88rem;
+.about-wide-card p {
+  font-size: 0.95rem;
   line-height: 1.65;
-  color: var(--muted);
+  color: var(--text-color);
+  opacity: 0.9;
 }
 
-.about-ctaRow {
+/* ======================================================
+   PANEL NAVIGATION (INSIDE CARD)
+   ====================================================== */
+.about-panel-nav {
   display: flex;
+  justify-content: center;
   gap: 12px;
-  justify-content: flex-start;
-  margin-top: 16px;
-  flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 8px;
+  flex-shrink: 0;          /* 🔑 never collapse */
 }
 
-/* Bottom pad for mobile */
-.about-bottomPad {
-  height: 70px;
+.about-panel-nav .btn-pill {
+  min-width: 40px;
+  padding: 5px 12px;
 }
+
+/* ======================================================
+   NAVBAR OVERLAP SAFETY
+   ====================================================== */
+#about {
+  scroll-margin-top: 140px;
+}
+
+.about-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.about-panel::-webkit-scrollbar-thumb {
+  background: var(--accent-border);
+  border-radius: 4px;
+}
+
 
 /* ======================================================
    RESPONSIVE
    ====================================================== */
-
-@media (max-width: 1100px) {
-  .about-layout {
+@media (max-width: 960px) {
+  .about-main-row {
     grid-template-columns: 1fr;
-    gap: 34px;
+    gap: 48px;
   }
 
-  .about-left .about-sticky {
-    position: relative;
-    top: auto;
+  .about-stack-card {
+    height: auto;
+    min-height: unset;
   }
 
-  .about-storyGrid,
-  .capGrid,
-  .proofGrid,
-  .about-metrics {
-    grid-template-columns: 1fr;
+  .about-panel {
+    overflow-y: visible;   /* no nested scroll on mobile */
   }
 
   .about-left {
-    max-width: 360px;
-    margin: 0 auto;
+    justify-content: center;
   }
 
   .about-left .pc-card-wrapper {
-    max-width: 360px;
+    transform: scale(0.95);
   }
 
-
-  .about-left .pc-card {
-    height: min(56svh, 380px);
-    max-height: 380px;
+  .about-title-center {
+    font-size: 2.4rem;
   }
-
-  .about-left .pc-details h3 {
-    font-size: min(3.4svh, 2.2em);
-  }
-
-  .about-left .pc-details p {
-    font-size: 13.5px;
-    top: -9px;
-  }
-
-  .about-left .pc-behind {
-    inset: 16px;
-    filter: blur(32px) saturate(1.05);
-    opacity: calc(0.52 * var(--card-opacity));
-  }
-
 }
 
 @media (max-width: 520px) {
 
-  .about-container {
-    padding: 0 16px;
+  /* ================= HEADER ================= */
+  .about-title-center {
+    font-size: 1.95rem;      /* slightly smaller */
+    margin-bottom: 6px;
   }
 
-  .about-chapterbar {
-    display: flex;             /* better than inline-flex on mobile */
-    width: 100%;
-    max-width: 100%;
-    gap: 6px;
-    padding: 6px 6px;
-    border-radius: 14px;
-
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+  .about-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.45;
   }
 
-  .about-chapterbar::-webkit-scrollbar {
-    display: none;
+  /* ================= MAIN ROW ================= */
+  .about-main-row {
+    gap: 36px;               /* tighter vertical spacing */
+    padding-bottom: 48px;
   }
 
-  .about-chip {
-    flex: 0 0 auto;
-    padding: 7px 10px;
-    font-size: 0.72rem;
-    line-height: 1;
-  }
-
-  .about-bottomPad {
-    height: 95px;
-  }
-    .about-left {
-    max-width: 340px;
-    margin: 0 auto;
-  }
-
+  /* ================= PROFILE CARD ================= */
   .about-left .pc-card-wrapper {
-    max-width: 340px;
+    transform: scale(0.92);  /* slightly larger than desktop mobile */
   }
-
 
   .about-left .pc-card {
-    height: min(54svh, 340px);
-    max-height: 340px;
+    height: min(60svh, 360px);
   }
 
-  .about-left .pc-details h3 {
-    font-size: min(3.2svh, 2.05em);
+  /* ================= STACKED PANEL ================= */
+  .about-stack-card {
+    padding: 16px 18px 12px;
   }
 
-  .about-left .pc-details p {
-    font-size: 12.5px;
-    top: -8px;
+  .about-panel {
+    overflow-y: auto;
   }
 
-  .about-left .pc-behind {
-    inset: 14px;
-    filter: blur(28px) saturate(1.03);
-    opacity: calc(0.45 * var(--card-opacity));
+  /* ================= SKILL CARDS ================= */
+  .about-grid {
+    gap: 12px;
+  }
+
+  .about-card {
+    padding: 14px;
+  }
+
+  .about-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .about-card p {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  /* ================= WIDE CARDS ================= */
+  .about-wide-card {
+    padding: 16px;
+  }
+
+  .about-wide-card p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  /* ================= PANEL NAV ================= */
+  .about-panel-nav {
+    margin-top: 8px;
+    gap: 10px;
+  }
+
+  .about-panel-nav .btn-pill {
+    padding: 4px 10px;
+    min-width: 36px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .about-stack-card {
+    padding: 16px 18px 12px;
   }
 }
 
 
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .about-hero,
-  .about-block {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-
-  .about-chip {
-    transition: none !important;
-  }
-}

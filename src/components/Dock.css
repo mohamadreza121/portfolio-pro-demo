@@ -41,6 +41,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
   border-radius: 10px;
   background-color: var(--dock-item-bg);
   border: 1px solid var(--dock-item-border);
@@ -50,6 +51,20 @@
   cursor: pointer;
   outline: none;
   transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.dock-active-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  z-index: 0;
+
+  /* Uses your theme variables so it matches night/day automatically */
+  background: rgba(97, 220, 163, 0.10);
+  border: 1px solid var(--accent-border);
+  box-shadow:
+    0 0 0 1px var(--accent-border),
+    0 0 18px var(--accent-glow);
 }
 
 /* ============================================
@@ -73,9 +88,11 @@
 }
 
 .dock-icon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
 }
 
 /* ===== LABELS ===== */
@@ -91,8 +108,10 @@
   padding: 0.125rem 0.5rem;
   font-size: 0.75rem;
   color: var(--dock-label-color);
+  pointer-events: none;
   transform: translateX(-50%);
   transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+  z-index: 1;
 }
 
 /* ===== ACTIVE / INACTIVE ICONS ===== */

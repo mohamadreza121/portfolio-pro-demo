@@ -1,31 +1,25 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { vi } from "vitest";
 import Main from "../pages/Main";
 
-test("renders all major sections", () => {
+test("renders all major sections", async () => {
   render(
-    <MemoryRouter>
-      <Main setActive={vi.fn()} revealKey={1} />
+    <MemoryRouter initialEntries={["/"]}>
+      <Main setActive={vi.fn()} revealKey={1} isQuoteOpen={false} />
     </MemoryRouter>
   );
 
-  expect(
-    screen.getByRole("heading", { name: /about me/i })
-  ).toBeInTheDocument();
-
-
-    expect(
-    screen.getByRole("heading", {
-      name: /enterprise network architecture portfolio/i
-    })
-  ).toBeInTheDocument();
-
+  // Use findByRole to allow async layout/state updates
+  expect(await screen.findByRole("heading", { name: /about me/i })).toBeInTheDocument();
 
   expect(
-    screen.getByRole("heading", { name: /certifications/i })
+    await screen.findByRole("heading", { name: /enterprise network architecture/i })
   ).toBeInTheDocument();
 
   expect(
-    screen.getByRole("heading", { name: /services/i })
+    await screen.findByRole("heading", { name: /professional certifications/i })
   ).toBeInTheDocument();
+
+  expect(await screen.findByRole("heading", { name: /services/i })).toBeInTheDocument();
 });

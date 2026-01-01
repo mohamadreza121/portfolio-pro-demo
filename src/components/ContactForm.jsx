@@ -1,5 +1,12 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./ContactForm.css";
+
+const EMPTY_FORM = {
+  name: "",
+  email: "",
+  service: "",
+  message: "",
+};
 
 export default function ContactForm({
   title = "Start a Project",
@@ -8,14 +15,14 @@ export default function ContactForm({
   variant = "footer", // "footer" | "page"
   onSubmit,
 }) {
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    service: "",
-    message: "",
-  });
-
+  const [formState, setFormState] = useState(EMPTY_FORM);
   const [status, setStatus] = useState("idle");
+
+  // Honeypot (kept OUT of formState so it never gets sent)
+  const [honeypot, setHoneypot] = useState("");
+
+  // Optional timing guard (kept because you already had it)
+  const mountedAtRef = useRef(Date.now());
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,22 +31,32 @@ export default function ContactForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus("submitting");
 
+    // Bot heuristics (honeypot + too-fast submit)
+    const elapsed = Date.now() - mountedAtRef.current;
+    const isBot = honeypot.trim().length > 0 || elapsed < 1200;
+
+    // Do not “signal” bots; just pretend success and reset.
+    if (isBot) {
+      setStatus("success");
+      setFormState(EMPTY_FORM);
+      setHoneypot("");
+      mountedAtRef.current = Date.now();
+      return;
+    }
+
+    setStatus("submitting");
     try {
-      if (onSubmit) {
-        await onSubmit(formState);
-      } else {
-        await new Promise((r) => setTimeout(r, 800));
-      }
+      if (!onSubmit) throw new Error("ContactForm missing onSubmit");
+      const res = await onSubmit(formState);
+
+      // Fail loud if your provider returns a non-ok shape
+      if (res && res.ok === false) throw new Error("Message provider returned ok=false");
 
       setStatus("success");
-      setFormState({
-        name: "",
-        email: "",
-        service: "",
-        message: "",
-      });
+      setFormState(EMPTY_FORM);
+      setHoneypot("");
+      mountedAtRef.current = Date.now();
     } catch {
       setStatus("error");
     }
@@ -53,6 +70,30 @@ export default function ContactForm({
       </header>
 
       <form onSubmit={handleSubmit} noValidate>
+        {/* Honeypot (hidden from humans). Name is “website” to reduce autofill collisions. */}
+        <div
+          style={{
+            position: "absolute",
+            left: "-10000px",
+            top: "auto",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+          }}
+          aria-hidden="true"
+        >
+          <label htmlFor="cf-website">Website</label>
+          <input
+            id="cf-website"
+            name="website"
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+          />
+        </div>
+
         <div className="form-grid">
           <input
             name="name"
@@ -106,13 +147,8 @@ export default function ContactForm({
             {status === "submitting" ? "Sending…" : "Send Message"}
           </button>
 
-          {status === "success" && (
-            <span className="form-status success">Message sent.</span>
-          )}
-
-          {status === "error" && (
-            <span className="form-status error">Submission failed.</span>
-          )}
+          {status === "success" && <span className="form-status success">Message sent.</span>}
+          {status === "error" && <span className="form-status error">Submission failed.</span>}
         </div>
       </form>
     </section>

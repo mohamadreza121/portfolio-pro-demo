@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { navigateAndScroll } from "../utils/scrollToSection";
+import { sendContactMessage } from "../services/messaging";
 
 import {
   FaMapMarkerAlt,
@@ -143,6 +144,7 @@ export default function Footer({ onRequestQuote }) {
               title="Start a Project"
               subtitle="Tell me about your idea and I’ll get back to you."
               showServiceSelect
+              onSubmit={(data) => sendContactMessage(data)}
             />
           </div>
         </div>

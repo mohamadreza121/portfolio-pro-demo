@@ -297,7 +297,10 @@ export default function Projects() {
     <section id="projects" className="projects-page">
       <span className="spy-marker" />
 
-      <div className="projects-container">
+      <div 
+        className="projects-container"
+        aria-label="Enterprise Network Architecture Portfolio"
+      >
         {/* ==============================
            HEADER
         ============================== */}

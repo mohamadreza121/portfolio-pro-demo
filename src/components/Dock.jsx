@@ -4,24 +4,34 @@ import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from
 import { Children, cloneElement, useEffect, useRef, useState } from 'react';
 
 import './Dock.css';
-import './TargetCursor'
+import "./TargetCursor.css";
 
-function DockItem({ children, className = '', onClick, mouseX, spring, distance, magnification, baseItemSize, isActive }) {
+function DockItem({
+  children,
+  className = "",
+  onClick,
+  mouseX,
+  spring,
+  distance,
+  magnification,
+  baseItemSize,
+  isActive,
+}) {
   const ref = useRef(null);
   const isHovered = useMotionValue(0);
 
-  const mouseDistance = useTransform(mouseX, val => {
-    const rect = ref.current?.getBoundingClientRect() ?? {
-      x: 0,
-      width: baseItemSize
-    };
+  const mouseDistance = useTransform(mouseX, (val) => {
+    const rect = ref.current?.getBoundingClientRect() ?? { x: 0, width: baseItemSize };
     return val - rect.x - baseItemSize / 2;
   });
 
-  const targetSize = useTransform(mouseDistance, [-distance, 0, distance], [baseItemSize, magnification, baseItemSize]);
-  const size = useSpring(targetSize, spring);
-  
+  const targetSize = useTransform(
+    mouseDistance,
+    [-distance, 0, distance],
+    [baseItemSize, magnification, baseItemSize]
+  );
 
+  const size = useSpring(targetSize, spring);
 
   return (
     <motion.div
@@ -30,7 +40,7 @@ function DockItem({ children, className = '', onClick, mouseX, spring, distance,
         width: size,
         height: size,
         touchAction: "manipulation",
-        WebkitTapHighlightColor: "transparent"
+        WebkitTapHighlightColor: "transparent",
       }}
       onTouchStart={() => isHovered.set(1)}
       onTouchEnd={() => isHovered.set(0)}
@@ -46,12 +56,27 @@ function DockItem({ children, className = '', onClick, mouseX, spring, distance,
       tabIndex={0}
       role="button"
       aria-haspopup="true"
-      aria-current={isActive ? "true" : undefined}
+      aria-current={isActive ? "page" : undefined}
     >
-      {Children.map(children, child => cloneElement(child, { isHovered }))}
+      {/* Smooth “moving active” indicator */}
+      {isActive && (
+        <motion.div
+          layoutId="dock-active-pill"
+          className="dock-active-pill"
+          transition={{
+            type: "spring",
+            stiffness: 520,
+            damping: 40,
+            mass: 0.35,
+          }}
+        />
+      )}
+
+      {Children.map(children, (child) => cloneElement(child, { isHovered }))}
     </motion.div>
   );
 }
+
 
 function DockLabel({ children, className = '', ...rest }) {
   const { isHovered } = rest;
@@ -74,7 +99,6 @@ function DockLabel({ children, className = '', ...rest }) {
           transition={{ duration: 0.2 }}
           className={`dock-label ${className}`}
           role="tooltip"
-          style={{ x: '-50%' }}
         >
           {children}
         </motion.div>
