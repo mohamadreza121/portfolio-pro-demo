@@ -18,10 +18,7 @@ export default function ContactForm({
   const [formState, setFormState] = useState(EMPTY_FORM);
   const [status, setStatus] = useState("idle");
 
-  // Honeypot (kept OUT of formState so it never gets sent)
   const [honeypot, setHoneypot] = useState("");
-
-  // Optional timing guard (kept because you already had it)
   const mountedAtRef = useRef(Date.now());
 
   const handleChange = (e) => {
@@ -32,11 +29,9 @@ export default function ContactForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Bot heuristics (honeypot + too-fast submit)
     const elapsed = Date.now() - mountedAtRef.current;
     const isBot = honeypot.trim().length > 0 || elapsed < 1200;
 
-    // Do not “signal” bots; just pretend success and reset.
     if (isBot) {
       setStatus("success");
       setFormState(EMPTY_FORM);
@@ -49,8 +44,6 @@ export default function ContactForm({
     try {
       if (!onSubmit) throw new Error("ContactForm missing onSubmit");
       const res = await onSubmit(formState);
-
-      // Fail loud if your provider returns a non-ok shape
       if (res && res.ok === false) throw new Error("Message provider returned ok=false");
 
       setStatus("success");
@@ -70,7 +63,7 @@ export default function ContactForm({
       </header>
 
       <form onSubmit={handleSubmit} noValidate>
-        {/* Honeypot (hidden from humans). Name is “website” to reduce autofill collisions. */}
+        {/* Honeypot */}
         <div
           style={{
             position: "absolute",
@@ -94,48 +87,51 @@ export default function ContactForm({
           />
         </div>
 
-        <div className="form-grid">
-          <input
-            name="name"
-            type="text"
-            placeholder="Name"
-            value={formState.name}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formState.email}
-            onChange={handleChange}
-            required
-          />
-
-          {showServiceSelect && (
-            <select
-              name="service"
-              className="cursor-target"
-              value={formState.service}
+        {/* Recessed tray */}
+        <div className="contact-tray">
+          <div className="form-grid">
+            <input
+              name="name"
+              type="text"
+              placeholder="Name"
+              value={formState.name}
               onChange={handleChange}
-            >
-              <option value="">Service (optional)</option>
-              <option value="network">Network Architecture</option>
-              <option value="security">Security Hardening</option>
-              <option value="consulting">Consulting</option>
-              <option value="web">Web / App</option>
-            </select>
-          )}
+              required
+            />
 
-          <textarea
-            name="message"
-            placeholder="Short project summary"
-            rows={variant === "footer" ? 3 : 5}
-            value={formState.message}
-            onChange={handleChange}
-            required
-          />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={formState.email}
+              onChange={handleChange}
+              required
+            />
+
+            {showServiceSelect && (
+              <select
+                name="service"
+                className="cursor-target"
+                value={formState.service}
+                onChange={handleChange}
+              >
+                <option value="">Service (optional)</option>
+                <option value="network">Network Architecture</option>
+                <option value="security">Security Hardening</option>
+                <option value="consulting">Consulting</option>
+                <option value="web">Web / App</option>
+              </select>
+            )}
+
+            <textarea
+              name="message"
+              placeholder="Short project summary"
+              rows={variant === "footer" ? 3 : 5}
+              value={formState.message}
+              onChange={handleChange}
+              required
+            />
+          </div>
         </div>
 
         <div className="form-actions">

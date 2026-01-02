@@ -60,7 +60,7 @@
   z-index: 0;
 
   /* Uses your theme variables so it matches night/day automatically */
-  background: rgba(97, 220, 163, 0.10);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
   border: 1px solid var(--accent-border);
   box-shadow:
     0 0 0 1px var(--accent-border),

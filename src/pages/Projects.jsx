@@ -16,16 +16,16 @@ const projects = [
     summary:
       "HQ + Branches with dual-ISP edge, segmented VLANs, secure routing, and Windows services.",
     tech: ["BGP", "OSPF", "FortiGate", "VLANs", "AD DS"],
-    image: "/projects/p1-topology.png",
-    video: "/projects/p1-topology.mp4",
+    image: new URL("../assets/projects/p1-topology.png", import.meta.url).href,
+    video: new URL("../assets/projects/p1-topology.mp4", import.meta.url).href,
   },
   {
     id: 2,
     title: "Multi-Branch WAN Architecture",
     summary: "OSPF internal routing with BGP redistribution and resilient WAN design.",
     tech: ["OSPF", "BGP", "Redistribution"],
-    image: "/projects/p2-wan.png",
-    video: "/projects/p2-wan.mp4",
+    image: new URL("../assets/projects/p2-wan.png", import.meta.url).href,
+    video: new URL("../assets/projects/p2-wan.mp4", import.meta.url).href,
   },
   {
     id: 3,
@@ -33,16 +33,16 @@ const projects = [
     summary:
       "Zone-based firewalling with site-to-site IPsec overlays and policy enforcement.",
     tech: ["FortiGate", "IPsec", "NAT"],
-    image: "/projects/p3-firewall.png",
-    video: "/projects/p3-firewall.mp4",
+    image: new URL("../assets/projects/p3-firewall.png", import.meta.url).href,
+    video: new URL("../assets/projects/p3-firewall.mp4", import.meta.url).href,
   },
   {
     id: 4,
     title: "Windows Server Infrastructure",
     summary: "Active Directory, DNS, DHCP, and Group Policy across enterprise sites.",
     tech: ["AD DS", "GPO", "DNS", "DHCP"],
-    image: "/projects/p4-ad.png",
-    video: "/projects/p4-ad.mp4",
+    image: new URL("../assets/projects/p4-ad.png", import.meta.url).href,
+    video: new URL("../assets/projects/p4-ad.mp4", import.meta.url).href,
   },
   {
     id: 5,
@@ -50,16 +50,16 @@ const projects = [
     summary:
       "Protection against rogue devices using DHCP Snooping and Dynamic ARP Inspection.",
     tech: ["DHCP Snooping", "DAI", "Port Security"],
-    image: "/projects/p5-l2.png",
-    video: "/projects/p5-l2.mp4",
+    image: new URL("../assets/projects/p5-l2.png", import.meta.url).href,
+    video: new URL("../assets/projects/p5-l2.mp4", import.meta.url).href,
   },
   {
     id: 6,
     title: "Enterprise Operations & Hardening",
     summary: "Monitoring, logging, baselining, and operational hardening across the network.",
     tech: ["Syslog", "SNMP", "Hardening"],
-    image: "/projects/p6-ops.png",
-    video: "/projects/p6-ops.mp4",
+    image: new URL("../assets/projects/p6-ops.png", import.meta.url).href,
+    video: new URL("../assets/projects/p6-ops.mp4", import.meta.url).href,
   },
 ];
 
@@ -353,18 +353,38 @@ export default function Projects() {
                   draggable="false"
                 />
 
-                {project.video ? (
-                  <video
-                    className="project-video"
-                    src={project.video}
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                  />
-                ) : null}
+              {project.video ? (
+                <video
+                  className="project-video"
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                >
+                  <source src={project.video} type="video/mp4" />
+                </video>
+              ) : null}
 
                 <div className="project-vignette" />
+              </div>
+
+              {/* Terminal Bar */}
+              <div className="project-terminalbar" aria-hidden="true">
+                <div className="term-dots">
+                  <span className="term-dot dot-red" />
+                  <span className="term-dot dot-yellow" />
+                  <span className="term-dot dot-green" />
+                </div>
+
+                <div className="term-label">
+                  {`netops@lab:~/projects$ open p${String(project.id).padStart(2, "0")}`}
+                </div>
+
+                <div className="term-spacer" />
+
+                <div className="term-badge">
+                  {project.tech?.[0] || "LAB"}
+                </div>
               </div>
 
               {/* Content */}

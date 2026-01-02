@@ -102,6 +102,127 @@ export default function ScrollDeck({
   }, []);
 
   /* =====================================================
+     A11y + focus helpers
+  ===================================================== */
+  const getFirstFocusable = useCallback((root) => {
+    if (!root) return null;
+
+    const selector = [
+      "a[href]",
+      "button:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "textarea:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])",
+      "[contenteditable='true']",
+    ].join(",");
+
+    return root.querySelector(selector);
+  }, []);
+
+  const focusSafely = useCallback((el) => {
+    if (!el || typeof el.focus !== "function") return false;
+    try {
+      el.focus({ preventScroll: true });
+    } catch {
+      try {
+        el.focus();
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  }, []);
+
+  const blurIfFocusedInside = useCallback((panelEl) => {
+    if (IS_TEST) return;
+
+    const activeEl = document.activeElement;
+    if (!activeEl || activeEl === document.body) return;
+    if (!panelEl || !panelEl.contains(activeEl)) return;
+
+    try {
+      activeEl.blur();
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const focusIntoPanel = useCallback(
+    (idx) => {
+      if (IS_TEST) return;
+
+      const panelEl = panelRefs.current[idx];
+      if (!panelEl) return;
+
+      const activeEl = document.activeElement;
+      if (activeEl && panelEl.contains(activeEl)) return;
+
+      const first = getFirstFocusable(panelEl);
+      if (first && focusSafely(first)) return;
+
+      if (!panelEl.hasAttribute("tabindex")) panelEl.setAttribute("tabindex", "-1");
+      focusSafely(panelEl);
+    },
+    [focusSafely, getFirstFocusable]
+  );
+
+  const focusDeckContainer = useCallback(() => {
+    if (IS_TEST) return;
+    const container = containerRef.current;
+    if (!container) return;
+    focusSafely(container);
+  }, [focusSafely]);
+
+  const setPanelA11y = useCallback((idx, isActive) => {
+    const el = panelRefs.current[idx];
+    if (!el) return;
+
+    if (IS_TEST) {
+      el.removeAttribute("aria-hidden");
+      if ("inert" in el) el.inert = false;
+      el.removeAttribute("inert");
+      return;
+    }
+
+    el.setAttribute("aria-hidden", String(!isActive));
+
+    // inert: use DOM property (best), and keep attribute for broad support
+    if ("inert" in el) el.inert = !isActive;
+
+    if (isActive) el.removeAttribute("inert");
+    else el.setAttribute("inert", "");
+  }, []);
+
+  const setPanelVisibility = useCallback((idx, isVisible) => {
+    const el = panelRefs.current[idx];
+    if (!el) return;
+
+    if (IS_TEST) {
+      el.style.visibility = "visible";
+      el.style.pointerEvents = "auto";
+      el.style.opacity = "1";
+      return;
+    }
+
+    el.style.visibility = isVisible ? "visible" : "hidden";
+    el.style.pointerEvents = isVisible ? "auto" : "none";
+  }, []);
+
+  const syncPanelsA11y = useCallback(
+    (activeIdx) => {
+      const maxIdx = Math.min(SECTION_ORDER.length - 1, panels.length - 1);
+      const safe = clamp(activeIdx, 0, maxIdx);
+
+      for (let i = 0; i < panels.length; i += 1) {
+        const isActive = i === safe;
+        setPanelA11y(i, isActive);
+      }
+    },
+    [panels.length, setPanelA11y]
+  );
+
+  /* =====================================================
      Helpers
   ===================================================== */
   const getIndexById = useCallback((id) => {
@@ -147,22 +268,6 @@ export default function ScrollDeck({
     [panels.length, setActive, setHashQuietly]
   );
 
-  const setPanelVisibility = useCallback((idx, isVisible) => {
-    const el = panelRefs.current[idx];
-    if (!el) return;
-
-    // In tests, keep everything visible & discoverable.
-    if (IS_TEST) {
-      el.style.visibility = "visible";
-      el.style.pointerEvents = "auto";
-      el.style.opacity = "1";
-      return;
-    }
-
-    el.style.visibility = isVisible ? "visible" : "hidden";
-    el.style.pointerEvents = isVisible ? "auto" : "none";
-  }, []);
-
   const scrollPanelTo = useCallback((idx, position = "top", behavior = "auto") => {
     const el = panelRefs.current[idx];
     if (!el) return;
@@ -184,7 +289,8 @@ export default function ScrollDeck({
   useEffect(() => {
     if (!revealKey) return;
 
-    // In tests: show everything; make headings queryable by RTL.
+    if (containerRef.current) containerRef.current.dataset.ready = "true";
+
     if (IS_TEST) {
       panelRefs.current.forEach((el) => {
         if (!el) return;
@@ -196,7 +302,6 @@ export default function ScrollDeck({
         el.style.zIndex = "20";
       });
 
-      // Defer to avoid "setState in effect" lint rule.
       if (typeof queueMicrotask === "function") queueMicrotask(() => applyActive(0));
       else Promise.resolve().then(() => applyActive(0));
 
@@ -205,19 +310,33 @@ export default function ScrollDeck({
 
     panelRefs.current.forEach((el, idx) => {
       if (!el) return;
-      el.style.opacity = idx === activeIndexRef.current ? "1" : "0";
+
+      const isActive = idx === activeIndexRef.current;
+
+      el.style.opacity = isActive ? "1" : "0";
       el.style.transform = "translate3d(0,0,0)";
       el.style.filter = "blur(0px)";
-      setPanelVisibility(idx, idx === activeIndexRef.current);
+      el.style.zIndex = isActive ? "20" : "10";
+
+      setPanelVisibility(idx, isActive);
     });
 
-    // Defer (same lint reason; also avoids any cascading renders)
+    syncPanelsA11y(activeIndexRef.current);
+
     if (typeof queueMicrotask === "function") {
       queueMicrotask(() => applyActive(activeIndexRef.current));
     } else {
       Promise.resolve().then(() => applyActive(activeIndexRef.current));
     }
-  }, [revealKey, applyActive, setPanelVisibility]);
+  }, [revealKey, applyActive, setPanelVisibility, syncPanelsA11y]);
+
+  /* =====================================================
+     Keep a11y state in sync after React commits activeIndex
+  ===================================================== */
+  useEffect(() => {
+    if (IS_TEST) return;
+    syncPanelsA11y(activeIndex);
+  }, [activeIndex, syncPanelsA11y]);
 
   /* =====================================================
      Body scroll lock (Main page only)
@@ -274,14 +393,29 @@ export default function ScrollDeck({
         return;
       }
 
+      // 1) Ensure target is interactable/visible BEFORE focus changes.
+      setPanelVisibility(target, true);
+      setPanelA11y(target, true);
+      nextEl.style.zIndex = "30";
+      currentEl.style.zIndex = "20";
+
+      // 2) Critical: if focus is inside the outgoing panel, move it out NOW
+      //    (prevents "Blocked aria-hidden..." warning).
+      blurIfFocusedInside(currentEl);
+      focusDeckContainer();
+
       if (resetTargetScroll) {
         scrollPanelTo(target, targetScrollPosition, targetScrollBehavior);
       }
 
+      // 3) Commit active index (navbar/hash/state)
+      applyActive(target);
+
+      // 4) Move focus into target panel (immediately, while both are visible)
+      focusIntoPanel(target);
+
       if (prefersReducedMotionRef.current) {
         gsap.killTweensOf([currentEl, nextEl]);
-        setPanelVisibility(current, false);
-        setPanelVisibility(target, true);
 
         currentEl.style.opacity = "0";
         currentEl.style.transform = "translate3d(0,0,0)";
@@ -291,17 +425,19 @@ export default function ScrollDeck({
         nextEl.style.transform = "translate3d(0,0,0)";
         nextEl.style.filter = "blur(0px)";
 
+        setPanelVisibility(current, false);
+        setPanelA11y(current, false);
+
         nextEl.style.zIndex = "20";
         currentEl.style.zIndex = "10";
 
         isTransitioningRef.current = false;
-        applyActive(target);
+
+        if (typeof queueMicrotask === "function") queueMicrotask(() => focusIntoPanel(target));
+        else Promise.resolve().then(() => focusIntoPanel(target));
+
         return;
       }
-
-      nextEl.style.zIndex = "30";
-      currentEl.style.zIndex = "20";
-      setPanelVisibility(target, true);
 
       gsap.killTweensOf([currentEl, nextEl]);
 
@@ -317,7 +453,7 @@ export default function ScrollDeck({
       const OVERLAP = isMobile ? 0.03 : 0.06;
       const EASE = isMobile ? "power2.out" : "power2.inOut";
 
-      // Stage next panel FIRST (prevents 1-frame flash if active commits quickly)
+      // Stage next panel
       gsap.set(nextEl, {
         opacity: 0,
         y: dir > 0 ? ENTER_Y : -ENTER_Y,
@@ -325,9 +461,6 @@ export default function ScrollDeck({
         filter: `blur(${ENTER_BLUR}px)`,
         transformOrigin: "50% 50%",
       });
-
-      // Commit active immediately so navbar + aria-hidden + deck events update now
-      applyActive(target);
 
       const tl = gsap.timeline({
         defaults: { duration: DURATION, ease: EASE },
@@ -338,12 +471,16 @@ export default function ScrollDeck({
             scale: 1,
             filter: "blur(0px)",
           });
+
           setPanelVisibility(current, false);
+          setPanelA11y(current, false);
 
           nextEl.style.zIndex = "20";
           currentEl.style.zIndex = "10";
 
           isTransitioningRef.current = false;
+
+          focusIntoPanel(target);
         },
       });
 
@@ -369,10 +506,14 @@ export default function ScrollDeck({
     },
     [
       applyActive,
+      blurIfFocusedInside,
+      focusDeckContainer,
+      focusIntoPanel,
       isQuoteOpen,
       panels.length,
       publishDeckState,
       scrollPanelTo,
+      setPanelA11y,
       setPanelVisibility,
     ]
   );
@@ -391,13 +532,11 @@ export default function ScrollDeck({
   useEffect(() => {
     if (!pendingSectionId) return;
 
-    const id = pendingSectionId;
-
     let cancelled = false;
     const run = () => {
       if (cancelled) return;
 
-      goToSection(id, {
+      goToSection(pendingSectionId, {
         resetTargetScroll: true,
         targetScrollPosition: "top",
         targetScrollBehavior: "auto",
@@ -446,7 +585,6 @@ export default function ScrollDeck({
   ===================================================== */
   useEffect(() => {
     if (IS_TEST) return;
-
     if (isCoarsePointerRef.current) return;
 
     const container = containerRef.current;
@@ -517,7 +655,7 @@ export default function ScrollDeck({
   }, [goToIndex, isQuoteOpen, panels.length]);
 
   /* =====================================================
-    Touch routing (iOS / mobile)
+     Touch routing (iOS / mobile)
   ===================================================== */
   useEffect(() => {
     if (IS_TEST) return;
@@ -641,19 +779,14 @@ export default function ScrollDeck({
   }, [activeIndex, publishDeckState]);
 
   /* =====================================================
-    Publish state AFTER activeIndex commit (critical)
+     Publish state AFTER activeIndex commit
   ===================================================== */
   useEffect(() => {
-    // After React commits aria-hidden updates, publish deck state.
     publishDeckState(activeIndex);
 
-    // Optional: a deterministic “panel is active now” signal
     const id = SECTION_ORDER[activeIndex]?.id || "home";
-    window.dispatchEvent(
-      new CustomEvent("deck:active", { detail: { index: activeIndex, id } })
-    );
+    window.dispatchEvent(new CustomEvent("deck:active", { detail: { index: activeIndex, id } }));
 
-    // Nudge in-view hooks AFTER commit
     if (!IS_TEST) {
       requestAnimationFrame(() => {
         window.dispatchEvent(new Event("scroll"));
@@ -669,7 +802,8 @@ export default function ScrollDeck({
     <div
       ref={containerRef}
       className={["scroll-deck", IS_TEST ? "scroll-deck--test" : ""].join(" ")}
-      role="application"
+      data-ready={revealKey ? "true" : "false"}
+      tabIndex={-1} // focus landing zone (prevents aria-hidden warning)
     >
       {panels.map((panel, idx) => (
         <section
@@ -678,7 +812,6 @@ export default function ScrollDeck({
             panelRefs.current[idx] = node;
           }}
           className="scroll-deck__panel"
-          aria-hidden={IS_TEST ? false : idx !== activeIndex}
         >
           <div className="scroll-deck__panelInner">{panel}</div>
         </section>

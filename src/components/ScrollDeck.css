@@ -5,6 +5,7 @@
   overflow: hidden;
 }
 
+/* Panels are absolutely stacked. Inactive panels are hidden by default. */
 .scroll-deck__panel {
   position: absolute;
   inset: 0;
@@ -12,42 +13,44 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+
   will-change: transform, opacity, filter;
   backface-visibility: hidden;
   transform: translateZ(0);
 
-  /* Default off (we enable the active one in JS) */
+  /* Default off */
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   z-index: 10;
 }
 
-/* Prevent keyboard focus from landing on hidden panels in edge cases */
-.scroll-deck__panel[aria-hidden="true"] {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-
-.scroll-deck__panelInner {
-  min-height: 100%;
-}
-
-/* Ensure the first panel is visible before GSAP runs */
-.scroll-deck__panel:first-child {
+/* Explicitly define the ON state via aria-hidden */
+.scroll-deck__panel[aria-hidden="false"] {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   z-index: 20;
 }
 
+/* Explicitly define the OFF state (redundant but safe) */
+.scroll-deck__panel[aria-hidden="true"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Content wrapper */
+.scroll-deck__panelInner {
+  min-height: 100%;
+}
+
+/* Touch behavior */
 .scroll-deck,
 .scroll-deck__panel {
   touch-action: pan-y;
 }
-
-
 
 /* =====================================================
    TEST MODE — make all panels accessible/stacked
@@ -71,7 +74,19 @@
   min-height: 100vh;
 }
 
+/* Only before revealKey marks the deck ready:
+   Ensure the first panel is visible even before aria-hidden is synced */
+.scroll-deck[data-ready="false"] .scroll-deck__panel:first-child {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 20;
+}
 
+/* Optional: when we programmatically focus the deck container */
+.scroll-deck:focus {
+  outline: none;
+}
 
 /* Reduce motion support */
 @media (prefers-reduced-motion: reduce) {
